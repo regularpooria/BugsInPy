@@ -1,0 +1,87 @@
+copy module does not preserve file ownership
+### Summary
+
+When using the `copy` module with `become: true` and `remote_src: true` the owner of the destination file is `root` rather than the owner of the source file.
+
+### Issue Type
+
+Feature request/Documentation report
+
+### Component Name
+
+copy
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.14.3]
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/Laborratte5/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.10/site-packages/ansible
+  ansible collection location = /home/Laborratte5/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/bin/ansible
+  python version = 3.10.9 (main, Dec 19 2022, 17:35:49) [GCC 12.2.0] (/usr/bin/python)
+  jinja version = 3.1.2
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+CONFIG_FILE() = /etc/ansible/ansible.cfg
+```
+
+
+### OS / Environment
+
+Control Node: Arch Linux
+Managed Node: Debian GNU/Linux 11 (bullseye)
+
+### Steps to Reproduce
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml (paste below)
+    - name: Copy test
+      become: true
+      ansible.builtin.copy:
+        src: "/home/provision/copytest.src"
+        remote_src: true
+        dest: "/home/provision/copytest.dest"
+        mode: preserve
+```
+
+
+### Expected Results
+
+I expected `copytest.dest` file having owner:group of `provision:provision`.
+
+### Actual Results
+
+```console
+-rw-r--r-- 1 root      root      8  5. Mär 00:22 copytest.dest
+-rw-r--r-- 1 provision provision 8  5. Mär 00:22 copytest.src
+
+changed: [test_server01] => {
+    "changed": true,
+    "checksum": "a32ac2d7196b96b084a4e9d792fa8fba7f1ed29d",
+    "dest": "/home/provision/copytest.dest",
+    "gid": 0,
+    "group": "root",
+    "md5sum": "4a251a2ef9bbf4ccc35f97aba2c9cbda",
+    "mode": "0644",
+    "owner": "root",
+    "size": 8,
+    "src": "/home/provision/copytest.src",
+    "state": "file",
+    "uid": 0
+}
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

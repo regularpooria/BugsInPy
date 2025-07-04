@@ -1,0 +1,42 @@
+TOML inventory examples in documentation are confusing
+##### SUMMARY
+
+When browsing the [toml inventory source](https://docs.ansible.com/ansible/latest/plugins/inventory/toml.html) documentation, I found the examples included on that page to be confusing.
+
+It looks like there should be three separate example TOML files, but instead, there's one code listing, with three YAML parameters, like:
+
+```yaml
+example1: |
+    toml here...
+
+example2: |
+    toml here...
+
+example3: |
+    toml here...
+```
+
+This makes it confusing as to how I'm supposed to format my toml-based inventory, because it looks like I can define multiple TOML inventories in one YAML file as arbitrary strings, or something along those lines.
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+
+toml
+
+##### ANSIBLE VERSION
+
+N/A
+
+##### CONFIGURATION
+
+N/A
+
+##### OS / ENVIRONMENT
+
+N/A
+
+##### ADDITIONAL INFORMATION
+
+N/A

@@ -1,0 +1,115 @@
+package_facts requires python-rpm on SUSE systems  in ansible 2.12.1
+### Summary
+
+This bug report is identical to #60707, which is about missing documentation for package_facts module, but affects the missing documention requirement for python-rpm on SUSE distributions.
+
+
+
+### Issue Type
+
+Bug Report
+
+### Component Name
+
+package_facts
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.12.10]
+```
+
+
+### Configuration
+
+```console
+Not applicable
+```
+
+
+### OS / Environment
+
+SUSE Enterprise 12
+SUSE Enterprise 15
+OpenSUSE Tumbleweed 15.3
+
+### Steps to Reproduce
+
+<!--- Paste example playbooks or commands between quotes below -->
+```
+zypper rm python3-rpm
+```
+Then run the following playbook on an ansible controller node to test locally.
+```
+ name: Playbook to test package_facts module locally on Suse based systems.
+  hosts: localhost
+  become: yes
+  connection: local
+  gather_facts: yes
+  tasks:
+    - name: Gather package facts on Suse based systems
+      package_facts:
+        manager: auto
+
+```
+
+### Expected Results
+
+```
+$ ansible-playbook package.yml
+
+PLAY [Playbook to test package_facts module locally on Suse based systems.] *******
+
+TASK [Gathering Facts] *****************************************************************
+ok: [localhost]
+
+TASK [Gather package facts on Suse based systems] ************************************
+ok: [localhost]
+
+PLAY RECAP *****************************************************************************
+localhost                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+ACTUAL RESULTS
+$ ansible-playbook package.yml
+
+PLAY [Playbook to test package_facts module locally on Suse based system.] *******
+
+TASK [Gathering Facts] *****************************************************************
+ok: [localhost]
+
+TASK [Gather package facts on Suse based systems] ************************************
+[WARNING]: Found "rpm" but Failed to import the required Python library (rpm) on localhost's Python /usr/bin/python3.6. Please read the module
+documentation and install it in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter,
+please consult the documentation on ansible_python_interpreter
+
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "Could not detect a supported package manager from the following list: ['portage', 'rpm', 'apk', 'pkg', 'pacman', 'apt'], or the required Python library is not installed. Check warnings for details."}
+```
+
+Temporary workaround:
+To install python-rpm package on any Suse based systems where package_facts module is going to be used for.
+
+
+### Actual Results
+
+```console
+$ ansible-playbook package.yml
+
+PLAY [Playbook to test package_facts module locally on Suse based system.] *******
+
+TASK [Gathering Facts] *****************************************************************
+ok: [localhost]
+
+TASK [Gather package facts on Suse based systems] ************************************
+[WARNING]: Found "rpm" but Failed to import the required Python library (rpm) on lab-224's Python /usr/bin/python3.6. Please read the module
+documentation and install it in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter,
+please consult the documentation on ansible_python_interpreter
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "Could not detect a supported package manager from the following list: ['portage', 'rpm', 'apk', 'pkg', 'pacman', 'apt'], or the required Python library is not installed. Check warnings for details."}
+
+PLAY RECAP *****************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

@@ -1,0 +1,46 @@
+Clarify that password parameter in user module docs is hashed
+### Summary
+
+From a mastodon user - the password parameter could make it clearer that is a password hash.
+
+Ideally, the key would be called password_hash instead of password. 
+
+If that is not possible, it would be nice to add a disclaimer that this doesn't encrypt the password for you. You could also extend the examples of the user module to show how to set the user password by calculating the hash with the jinja2 filter.
+
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+user
+
+### Ansible Version
+
+```console
+$ ansible --version
+2.15
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+none
+```
+
+
+### OS / Environment
+
+none
+
+### Additional Information
+
+none
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

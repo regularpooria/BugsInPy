@@ -1,0 +1,98 @@
+azure_rm_virtualmachinescaleset module fails to create a VMSS when data disks are specified in custom image
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+The Ansible azure_rm_virtualmachinescaleset module fails to create a VMSS when data disks are specified, and the source for the VM is a custom image which also has exactly the same disk profile specified.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+azure_rm_virtualmachinescaleset
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.8.2
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/someuser/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Jun 20 2019, 20:27:34) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+-- No output --
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+CentOS 7.5
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+1. Create a CentOS VM with 1 attached data disk (Standard_LRS) of size 1GB
+2. Capture an image of the above VM using steps like [this](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/capture-image)
+3. Run an Ansible playbook like below to create a VMSS based on the above custom image
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: create a VMSS
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Create luns dictionary
+    set_fact:
+      luns_dict: "{{ luns_dict | default ([]) + [{ 'lun': item, 'managed_disk_type': Standard_LRS, 'disk_size_gb': 1 , 'caching': None } ] }}"
+    with_sequence: start=0 end=1
+
+  - name: Create Scale Set
+    azure_rm_virtualmachinescaleset:
+      resource_group: "azure_rg"
+      location: "westus2"
+      name: "somevmss"
+      vm_size: "Standard_D3_v2"
+      admin_username: "someuser"
+      ssh_password_enabled: false
+      ssh_public_keys:
+        - path: /home/someuser/.ssh/authorized_keys
+          key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      capacity: 2
+      virtual_network_name: "vnet1"
+      subnet_name: "subnet1"
+      upgrade_policy: Manual
+      tier: Standard
+      managed_disk_type: "Standard_LRS"
+      os_disk_caching: ReadWrite
+      enable_accelerated_networking: yes
+      image:
+        resource_group: "somergwithimage"
+        name: "someimg"
+      data_disks: "{{ luns_dict }}"
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+VMSS is created successfully with the data disks from the image.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+Get error message as below when trying to create from Ansible:
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+"msg": "Error creating or updating virtual machine somevmss - Azure Error: InvalidParameter\nMessage: Cannot specify user image overrides for a disk already defined in the specified image reference.\nTarget: storageProfile"
+```
+
+Note that creating a VMSS from the same image using Azure CLI succeeds; sample command below:
+```
+az vmss create -n vmss_2  --admin-username azureadmin  --admin-password somepass  -g some-rg --instance-count 4 --image someimgresourceid --location westus2  --vnet-name vnet1 --subnet subnet1  --subnet-address-prefix 10.1.0.0/16  --vnet-address-prefix 10.0.0.0/8  --vm-sku Standard_D4s_v3  --storage-sku os=Premium_LRS 1=Standard_LRS
+```

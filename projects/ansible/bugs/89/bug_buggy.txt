@@ -1,0 +1,131 @@
+ios_facts l2_interfaces resource only returning Gig interfaces
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+I have been using 2.9.0rc4 to try out the new resource models for ios_facts and the l2_interfaces resource only parses Gigabit interfaces and completely ignores other interface (Fast (100 Mbps), Ten, Twenty, Forty, Hundred etc.)
+
+Line 89 in the module says
+`if intf.lower().startswith('gi'):`
+If I remove the if statement I get all interfaces including Vlan interfaces which definitily shouldn't be parsed. I would like to discuss if this should be replaced with a whitelist which needs to be kept updated or a blacklist to exclude unwanted interfaces. I can open a PR later to fix it when a decision has been made how to filter
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ios_facts
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.0rc4
+  config file = /home/dennis/.ansible.cfg
+  configured module search path = [u'/home/dennis/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python2.7/dist-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 2.7.13 (default, Sep 26 2018, 18:42:22) [GCC 6.3.0 20170516]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+DEFAULT_FORKS(/home/dennis/.ansible.cfg) = 4
+DEFAULT_STDOUT_CALLBACK(/home/dennis/.ansible.cfg) = yaml
+HOST_KEY_CHECKING(/home/dennis/.ansible.cfg) = False
+INTERPRETER_PYTHON(/home/dennis/.ansible.cfg) = auto_legacy_silent
+INVENTORY_ENABLED(/home/dennis/.ansible.cfg) = [u'yaml']
+RETRY_FILES_ENABLED(/home/dennis/.ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Host: Debian via WSL
+Switch: Cisco C2960 running IOS 15.0(2)
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+ansible -m ios_facts switch_hostname -a "gather_network_resources=l2_interfaces"
+<!--- Paste example playbooks or commands between quotes below -->
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+```yaml
+  ansible_facts:
+    ansible_net_gather_network_resources:
+    - l2_interfaces
+    ansible_net_gather_subset: []
+    ansible_network_resources:
+      l2_interfaces:
+      - name: FastEthernet0/1
+      - name: FastEthernet0/2
+      - name: FastEthernet0/3
+      - access:
+          vlan: 569
+        name: FastEthernet0/4
+      - name: FastEthernet0/5
+      - name: FastEthernet0/6
+      - name: FastEthernet0/7
+      - name: FastEthernet0/8
+      - name: FastEthernet0/9
+      - name: FastEthernet0/10
+      - name: FastEthernet0/11
+      - name: FastEthernet0/12
+      - name: FastEthernet0/13
+      - name: FastEthernet0/14
+      - name: FastEthernet0/15
+      - name: FastEthernet0/16
+      - name: FastEthernet0/17
+      - name: FastEthernet0/18
+      - name: FastEthernet0/19
+      - name: FastEthernet0/20
+      - name: FastEthernet0/21
+      - name: FastEthernet0/22
+      - name: FastEthernet0/23
+      - name: FastEthernet0/24
+      - name: FastEthernet0/25
+      - name: FastEthernet0/26
+      - name: FastEthernet0/27
+      - name: FastEthernet0/28
+      - name: FastEthernet0/29
+      - name: FastEthernet0/30
+      - name: FastEthernet0/31
+      - name: FastEthernet0/32
+      - name: FastEthernet0/33
+      - name: FastEthernet0/34
+      - name: FastEthernet0/35
+      - name: FastEthernet0/36
+      - name: FastEthernet0/37
+      - name: FastEthernet0/38
+      - access:
+          vlan: 3033
+        name: FastEthernet0/39
+      - name: FastEthernet0/40
+      - name: FastEthernet0/41
+      - name: FastEthernet0/42
+      - name: FastEthernet0/43
+      - name: FastEthernet0/44
+      - name: FastEthernet0/45
+      - name: FastEthernet0/46
+      - name: FastEthernet0/47
+      - name: FastEthernet0/48
+      - name: GigabitEthernet0/1
+      - name: GigabitEthernet0/2
+    discovered_interpreter_python: /usr/bin/python
+```
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+```yaml
+  ansible_facts:
+    ansible_net_gather_network_resources:
+    - l2_interfaces
+    ansible_net_gather_subset: []
+    ansible_network_resources:
+      l2_interfaces:
+      - name: GigabitEthernet0/1
+      - name: GigabitEthernet0/2
+    discovered_interpreter_python: /usr/bin/python
+```

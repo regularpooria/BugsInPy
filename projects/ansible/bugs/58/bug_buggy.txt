@@ -1,0 +1,27 @@
+Add  Custom Properties to ovirt_host_network
+##### SUMMARY
+
+Add field to ovirt_host_network to configure "Custom Properties" (from oVirt) 
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+
+ovirt_host_network
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+This feature will be used to configure specific options during host's network setup (e.g. custom proprieties for FCoE)
+
+```yaml
+- ovirt_host_network:
+    name: myhost
+    interface: eth0-fcoe
+    networks:
+      - name: myvlan1
+      - name: myvlan2
+    custom_proprieties:
+      - type: fcoe
+        options: "enable=yes,dcb=no,auto_vlan=yes"
+```

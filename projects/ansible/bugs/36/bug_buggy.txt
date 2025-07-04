@@ -1,0 +1,44 @@
+get_url documentation formats "not" incorrectly
+### Summary
+
+The `get_url` module documentation has extraneous formatting in the "not" word in:
+```
+NTLM authentication is C(not) supported even if the GSSAPI mech for NTLM has been installed.
+```
+As it is a part of a sentence, I suspect the "not" here should not have any specific formatting.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+get_url
+
+### Ansible Version
+
+```console
+$ ansible --version
+irrelevant
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+irrelevant
+```
+
+
+### OS / Environment
+
+irrelevant
+
+### Additional Information
+
+irrelevant
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

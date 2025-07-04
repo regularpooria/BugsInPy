@@ -1,0 +1,131 @@
+ios_l3_interfaces can't do round trip (gather_facts->data model->push back to device) b/c of cidr / notation 
+##### SUMMARY
+when you gather_facts for ios_l3_interfaces 
+
+it will gather the full subnet (e.g. 255.255.255.0 instead of /24)
+```
+    l3_interfaces:
+    - ipv4:
+      - address: 192.168.1.101 255.255.255.0
+      name: loopback0
+    - ipv4:
+      - address: 10.1.1.101 255.255.255.0
+      name: loopback1
+```
+but if you push this acquired data model back out, it will do this->
+```
+  msg: address format is <ipv4 address>/<mask>, got invalid format 10.10.10.1 255.255.255.0
+```
+
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+ios_l3_interfaces 
+
+##### ANSIBLE VERSION
+```paste below
+ansible 2.9.0.dev0
+  config file = /home/student1/.ansible.cfg
+  configured module search path = [u'/home/student1/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/student1/.local/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 14:33:56) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+```
+
+##### CONFIGURATION
+```paste below
+DEFAULT_HOST_LIST(/home/student1/.ansible.cfg) = [u'/home/student1/networking-workshop/lab_inventory/hosts']
+DEFAULT_STDOUT_CALLBACK(/home/student1/.ansible.cfg) = yaml
+DEFAULT_TIMEOUT(/home/student1/.ansible.cfg) = 60
+DEPRECATION_WARNINGS(/home/student1/.ansible.cfg) = False
+HOST_KEY_CHECKING(/home/student1/.ansible.cfg) = False
+PERSISTENT_COMMAND_TIMEOUT(/home/student1/.ansible.cfg) = 60
+PERSISTENT_CONNECT_TIMEOUT(/home/student1/.ansible.cfg) = 60
+RETRY_FILES_ENABLED(/home/student1/.ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+```
+NAME="Red Hat Enterprise Linux Server"
+VERSION="7.6 (Maipo)"
+ID="rhel"
+ID_LIKE="fedora"
+VARIANT="Server"
+VARIANT_ID="server"
+VERSION_ID="7.6"
+PRETTY_NAME="Red Hat Enterprise Linux Server 7.6 (Maipo)"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:redhat:enterprise_linux:7.6:GA:server"
+HOME_URL="https://www.redhat.com/"
+BUG_REPORT_URL="https://bugzilla.redhat.com/"
+
+REDHAT_BUGZILLA_PRODUCT="Red Hat Enterprise Linux 7"
+REDHAT_BUGZILLA_PRODUCT_VERSION=7.6
+REDHAT_SUPPORT_PRODUCT="Red Hat Enterprise Linux"
+REDHAT_SUPPORT_PRODUCT_VERSION="7.6"
+Red Hat Enterprise Linux Server release 7.6 (Maipo)
+Red Hat Enterprise Linux Server release 7.6 (Maipo)
+```
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+---
+- hosts: rtr1
+  gather_facts: false
+  tasks:
+    - name: grab info
+      ios_facts:
+        gather_subset: min
+        gather_network_resources: l3_interfaces
+      register: facts_for_sean
+
+    - name: print interface_info
+      debug:
+        msg: "{{ansible_network_resources}}"
+
+    - name: print facts
+      debug:
+        var: facts_for_sean
+```
+which results in
+```
+    l3_interfaces:
+    - ipv4:
+      - address: 192.168.1.101 255.255.255.0
+      name: loopback0
+    - ipv4:
+      - address: 10.1.1.101 255.255.255.0
+      name: loopback1
+    - ipv4:
+      - address: 10.10.10.1 255.255.255.0
+      ipv6:
+      - address: fc00::100/64
+      - address: fc00::101/64
+      name: loopback100
+    - ipv4:
+      - address: dhcp
+      name: GigabitEthernet1
+```
+
+now try to merge those->
+```
+    - ios_l3_interfaces:
+        config: "{{config}}"
+        state: merged
+```
+you will get something like
+```
+TASK [ios_l3_interfaces] ***********************************************************************************************
+fatal: [rtr1]: FAILED! => changed=false
+  msg: address format is <ipv4 address>/<mask>, got invalid format 10.10.10.1 255.255.255.0
+```
+##### EXPECTED RESULTS
+OK pass
+
+##### ACTUAL RESULTS
+failed, does not work, wants `/24` notation 

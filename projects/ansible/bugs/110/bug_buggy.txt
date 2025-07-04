@@ -1,0 +1,30 @@
+ios_facts 2.9 - gather_subset min
+<!--- Verify first that your improvement is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below, add suggestions to wording or structure -->
+
+Following merge of #59716 revamping ios_facts module, the doc states the 'min' subset in examples but it's not defined in 'Documentation' supported options.
+And in module_utils/network/ios/facts/facts.py ; the dict FACT_LEGACY_SUBSETS doesn't mention this 'min' subset.
+
+<!--- HINT: Did you know the documentation has an "Edit on GitHub" link on every page ? -->
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the rst file, module, plugin, task or feature below, use your best guess if unsure -->
+ios_facts module
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+2.9
+```
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how this improves the documentation, e.g. before/after situation or screenshots -->
+
+<!--- HINT: You can paste gist.github.com links for larger files -->

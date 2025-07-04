@@ -1,0 +1,69 @@
+misleading examples in getent documentation
+### Summary
+
+While reading the online docs for the `getent` module, all the examples show various `debug` statements like:
+```
+- debug:
+    var: getent_passwd
+```
+However, this only works if `inject_facts_as_vars = true`. The examples should, instead, show:
+```
+- debug:
+    var: ansible_facts.getent_passwd
+```
+The second works regardless of the `inject_facts_as_vars` value.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+ansible.builtin.getent
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible 2.9.25
+  config file = /home/doug/.ansible.cfg
+  configured module search path = ['/home/doug/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/doug/.virtualenvs/a29/lib/python3.9/site-packages/ansible
+  executable location = /home/doug/.virtualenvs/a29/bin/ansible
+  python version = 3.9.7 (default, Sep  1 2021, 00:07:56) [GCC 11.2.0]
+
+But this affects all online versions of the documentation and is **not* 2.9-specific
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+ANSIBLE_NOCOWS(/home/doug/.ansible.cfg) = True
+ANSIBLE_PIPELINING(/home/doug/.ansible.cfg) = True
+DEFAULT_CALLBACK_WHITELIST(/home/doug/.ansible.cfg) = ['unixy', 'yaml']
+DEFAULT_GATHERING(/home/doug/.ansible.cfg) = smart
+DEFAULT_INTERNAL_POLL_INTERVAL(/home/doug/.ansible.cfg) = 0.001
+DEFAULT_LOAD_CALLBACK_PLUGINS(/home/doug/.ansible.cfg) = True
+DEFAULT_PRIVATE_KEY_FILE(/home/doug/.ansible.cfg) = /home/doug/.vagrant.d/insecure_private_key
+DEFAULT_REMOTE_USER(/home/doug/.ansible.cfg) = vagrant
+DEFAULT_STDOUT_CALLBACK(/home/doug/.ansible.cfg) = unixy
+DEFAULT_VAULT_PASSWORD_FILE(/home/doug/.ansible.cfg) = /home/doug/.ansible/vaultpass.txt
+HOST_KEY_CHECKING(/home/doug/.ansible.cfg) = False
+RETRY_FILES_ENABLED(/home/doug/.ansible.cfg) = False
+USE_PERSISTENT_CONNECTIONS(/home/doug/.ansible.cfg) = True
+```
+
+
+### OS / Environment
+
+Firefox on macOS
+
+### Additional Information
+
+This change would prevent task failure due to `getent_*` being undefined for those with `inject_facts_as_vars = false` and continues to work for those with it set to `true`
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

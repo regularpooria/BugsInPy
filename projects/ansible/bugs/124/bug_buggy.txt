@@ -1,0 +1,78 @@
+[subversion] always shows as changed when using --check and revision
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+A `subversion` task will always report as changed if the `revision` option is specified when using `ansible-playbook --check`. It will report that the "after" revision is the remote URL's HEAD rather than the revision that was specified in the task options. This is misleading for two reasons:
+1. The real "after" revision will not be what is reported by `--check` when the task is actually run.
+2. When running without `--check`, ansible correctly reports that the task is "ok" if no change is needed.
+
+I believe it should be possible, even in `--check` mode, to detect that the revision of the svn repo on the host is the revision that is requested, and report that the task is "ok" instead of "changed".
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+subversion
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.8.3
+  config file = /home/dhemberg/sgp-ansible/ansible.cfg
+  configured module search path = ['/home/dhemberg/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/dhemberg/.local/lib/python3.7/site-packages/ansible
+  executable location = /home/dhemberg/.local/bin/ansible
+  python version = 3.7.3 (default, Apr  3 2019, 05:39:12) [GCC 8.3.0]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+DEFAULT_HOST_LIST(/home/dhemberg/sgp-ansible/ansible.cfg) = ['/home/dhemberg/sgp-ansible/hosts']
+DEFAULT_LOG_PATH(/home/dhemberg/sgp-ansible/ansible.cfg) = /home/dhemberg/sgp-ansible/ansible.log
+DISPLAY_SKIPPED_HOSTS(/home/dhemberg/sgp-ansible/ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Ubuntu 19.04
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+Create a test.yml file with the `subversion` task as below. Set the revision to be some past revision of the repository. Deploy so that the repo is up-to-date. Then deploy again with the `--check` option, and see that it reports that the task would be changed.
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: Check out svn repo
+  subversion:
+    repo: svn+ssh://path/to/remote/repo
+    revision: 123
+    dest: /path/to/local/repo
+```
+Run the following two commands:
+```
+ansible-playbook test.yml
+ansible-playbook test.yml --check
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+I expect the task to report as "ok" because the revision of the repo on the host is at the requested revision.
+```
+TASK [Check out svn repo] **************************************************************************
+ok: [hostname] => {"after": "Revision: 123", "before": "Revision: 123", "changed": false}
+```
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+I see that it reports the "after" revision as the most recent revision of the repository, rather than the revision that has been explicitly requested in the `subversion` task options.
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+TASK [Check out svn repo] **************************************************************************
+changed: [hostname] => {"after": "Revision: 94432", "before": "Revision: 123", "changed": true}
+```

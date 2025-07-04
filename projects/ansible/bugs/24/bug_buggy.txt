@@ -1,0 +1,81 @@
+uri failed_when example is misleading
+### Summary
+
+One of the examples on https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html is this:
+
+```
+- name: Check that a page returns a status 200 and fail if the word AWESOME is not in the page contents
+  ansible.builtin.uri:
+    url: http://www.example.com
+    return_content: true
+  register: this
+  failed_when: "'AWESOME' not in this.content"
+```
+
+Despite the name claiming it does, this doesn't actually check that the page returns status 200. For example, the following will not fail despite the 404 status code (https://example.com/doesnotexist returns 404 but contains the word 'Example'):
+
+```
+- name: Check that a page returns a status 200 and fail if the word AWESOME is not in the page contents
+  uri:
+    url: https://example.com/doesnotexist
+    return_content: true
+  register: this
+  failed_when: "'Example' not in this.content"
+```
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+uri
+
+### Ansible Version
+
+```console
+$ ansible --version
+
+ansible 2.9.16
+  config file = /root/ansible/ansible.cfg
+  configured module search path = ['/root/ansible/library']
+  ansible python module location = /usr/lib/python3.6/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 3.6.8 (default, Aug 18 2020, 08:33:21) [GCC 8.3.1 20191121 (Red Hat 8.3.1-5)]
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+
+ANSIBLE_PIPELINING(/root/ansible/ansible.cfg) = True
+DEFAULT_HASH_BEHAVIOUR(/root/ansible/ansible.cfg) = merge
+DEFAULT_HOST_LIST(/root/ansible/ansible.cfg) = ['/root/ansible/inventories/staging/staging2']
+DEFAULT_MODULE_PATH(/root/ansible/ansible.cfg) = ['/root/ansible/library']
+DEFAULT_REMOTE_USER(/root/ansible/ansible.cfg) = root
+DEFAULT_ROLES_PATH(/root/ansible/ansible.cfg) = ['/root/ansible/roles']
+INVENTORY_IGNORE_EXTS(/root/ansible/ansible.cfg) = ['certs']
+```
+
+
+### OS / Environment
+
+Red Hat Enterprise Linux release 8.3 (Ootpa)
+
+
+### Additional Information
+
+The status should be checked in failed_when. This will make it clear that you have to do it manually if you use failed_when. E.g.:
+
+```
+failed_when: "this.status not in this.invocation.module_args.status_code or 'Example' not in this.content"
+```
+
+(I'm not sure if this is the right way to get the `status_code` argument, but it seems to work)
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

@@ -1,0 +1,86 @@
+Module Find returns empty list when setting path to "/" and depth to 1
+##### SUMMARY
+Module "find", when setting path to "/" and depth to 1. The list returned is empty. The reason is that the way currently used to calculate the depth being scanned, against the depth set on the parameter, gives a wrong value for objects under "/", such as "/var", attributing depth 2 to such objects. That way they are not included on the returned list.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+m:find
+
+##### ANSIBLE VERSION
+```
+ansible 2.9.7
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/awx/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.6/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 3.6.8 (default, Nov 21 2019, 19:31:34) [GCC 8.3.1 20190507 (Red Hat 8.3.1-4)]
+```
+
+##### CONFIGURATION
+```
+
+```
+
+##### OS / ENVIRONMENT
+NAME="CentOS Linux"
+VERSION="8 (Core)"
+ID="centos"
+ID_LIKE="rhel fedora"
+VERSION_ID="8"
+PLATFORM_ID="platform:el8"
+PRETTY_NAME="CentOS Linux 8 (Core)"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:centos:centos:8"
+HOME_URL="https://www.centos.org/"
+BUG_REPORT_URL="https://bugs.centos.org/"
+
+CENTOS_MANTISBT_PROJECT="CentOS-8"
+CENTOS_MANTISBT_PROJECT_VERSION="8"
+REDHAT_SUPPORT_PRODUCT="centos"
+REDHAT_SUPPORT_PRODUCT_VERSION="8"
+
+
+##### STEPS TO REPRODUCE
+{
+    "ANSIBLE_MODULE_ARGS": {
+        "depth": 1,
+        "recurse": true,
+        "paths": "/",
+        "file_type": "directory"
+    }
+}
+python3 -m ansible.modules.find /tmp/args.json
+```
+{"files": [], "changed": false, "msg": "", "matched": 0, "invocation": {"module_args": {"depth": 1, "hidden": false, "file_type": "directory", "excludes": null, "patterns": ["*"], "age": null, "get_checksum": false, "recurse": true, "follow": false, "use_regex": false, "size": null, "contains": null, "age_stamp": "mtime", "paths": ["/"]}}, "examined": 0}
+
+```
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+A list with the directories below:
+/ # ls -l
+total 60
+drwxr-xr-x    1 root     root          4096 Apr 24 01:34 bin
+drwxr-xr-x    5 root     root           340 May 11 21:41 dev
+drwxr-xr-x    1 root     root          4096 May 11 21:41 etc
+drwxr-xr-x    2 root     root          4096 Apr 23 06:25 home
+drwxr-xr-x    1 root     root          4096 Apr 24 01:34 lib
+drwxr-xr-x    5 root     root          4096 Apr 23 06:25 media
+drwxr-xr-x    2 root     root          4096 Apr 23 06:25 mnt
+drwxr-xr-x    2 root     root          4096 Apr 23 06:25 opt
+dr-xr-xr-x  206 root     root             0 May 11 21:41 proc
+drwx------    1 root     root          4096 May 11 21:43 root
+drwxr-xr-x    1 root     root          4096 May 11 21:41 run
+drwxr-xr-x    2 root     root          4096 Apr 23 06:25 sbin
+drwxr-xr-x    2 root     root          4096 Apr 23 06:25 srv
+dr-xr-xr-x   13 root     root             0 May  1 02:30 sys
+drwxrwxrwt    1 root     root          4096 May 21 17:22 tmp
+drwxr-xr-x    1 root     root          4096 Apr 24 01:34 usr
+drwxr-xr-x    1 root     root          4096 Apr 24 01:34 var
+
+##### ACTUAL RESULTS
+```
+{"files": [], "changed": false, "msg": "", "matched": 0, "invocation": {"module_args": {"depth": 1, "hidden": false, "file_type": "directory", "excludes": null, "patterns": ["*"], "age": null, "get_checksum": false, "recurse": true, "follow": false, "use_regex": false, "size": null, "contains": null, "age_stamp": "mtime", "paths": ["/"]}}, "examined": 0}
+```

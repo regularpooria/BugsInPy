@@ -1,0 +1,25 @@
+"file" docs reference non-existent param in other modules
+##### SUMMARY
+See https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html, where for the parameter "state" it says:
+"see the touch value or the ansible.builtin.copy or ansible.builtin.template module"
+
+Neither
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html#ansible-collections-ansible-builtin-copy-module
+nor
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html#ansible-collections-ansible-builtin-template-module
+have anything about "touch".
+
+The "file" page also says "Even with other options (i.e mode), the file will be modified but will NOT be created if it does not exist", but a sentence later it describes "touch" value for this same parameter.
+
+Perhaps the "see..." reference should be removed, and the note reworded like this?
+
+"Even with other options (i.e mode), the file will be modified but will NOT be created if it does not exist. Use state touch to have the file created."
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+file
+
+##### ANSIBLE VERSION
+latest

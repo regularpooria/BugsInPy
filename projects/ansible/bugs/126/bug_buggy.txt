@@ -1,0 +1,79 @@
+ansible-galaxy collection build failing to find meta file
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+`ansible-galaxy collection build` fails when unable to locate new ` lib/ansible/galaxy/data/collections_galaxy_meta.yml` data file.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+ansible-galaxy
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.0.dev0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/calvin/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/calvin/projects/ansible/lib/ansible
+  executable location = /home/calvin/.local/share/virtualenvs/orion/bin/ansible
+  python version = 3.6.8 (default, Mar 21 2019, 10:08:12) [GCC 8.3.1 20190223 (Red Hat 8.3.1-2)]
+
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Fedora 28, should affect all versions OS tho
+
+
+##### STEPS TO REPRODUCE
+- Install latest `devel` branch of ansible *without* the `pip -e` flag
+- Attempt to build a collection with `ansible-galaxy collection build`
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+Expect the collection to be built and a `.tar.gz` artifact to be created.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+ansible-galaxy 2.9.0.dev0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/calvin/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible
+  executable location = /home/calvin/.local/share/virtualenvs/orion/bin/ansible-galaxy
+  python version = 3.6.8 (default, Mar 21 2019, 10:08:12) [GCC 8.3.1 20190223 (Red Hat 8.3.1-2)]
+Using /etc/ansible/ansible.cfg as config file
+Opened /home/calvin/.ansible_galaxy
+ERROR! Unexpected Exception, this is probably a bug: [Errno 2] No such file or directory: b'/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/galaxy/data/collections_galaxy_meta.yml'
+the full traceback was:
+
+Traceback (most recent call last):
+  File "/home/calvin/.local/share/virtualenvs/orion/bin/ansible-galaxy", line 111, in <module>
+    exit_code = cli.run()
+  File "/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/cli/galaxy.py", line 269, in run
+    context.CLIARGS['func']()
+  File "/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/cli/galaxy.py", line 398, in execute_build
+    build_collection(collection_path, output_path, force)
+  File "/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/galaxy/collection.py", line 360, in build_collection
+    collection_meta = _get_galaxy_yml(b_galaxy_path)
+  File "/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/galaxy/collection.py", line 528, in _get_galaxy_yml
+    meta_info = get_collections_galaxy_meta_info()
+  File "/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/galaxy/__init__.py", line 38, in get_collections_galaxy_meta_info
+    with open(to_bytes(meta_path, errors='surrogate_or_strict'), 'rb') as galaxy_obj:
+FileNotFoundError: [Errno 2] No such file or directory: b'/home/calvin/.local/share/virtualenvs/orion/lib/python3.6/site-packages/ansible/galaxy/data/collections_galaxy_meta.yml'
+
+```

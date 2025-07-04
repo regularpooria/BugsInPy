@@ -1,0 +1,16 @@
+Doc for win_format does not mention it is for Windows v6.2 or higher
+##### SUMMARY
+Documentation for win_format does not mention that it only works on Windows v6.2 or higher - this is only apparent from looking at the code.
+
+The similar module win_partition includes the line:
+A minimum Operating System Version of 6.2 is required to use this module. To check if your OS is compatible, see https://docs.microsoft.com/en-us/windows/desktop/sysinfo/operating-system-version.
+
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+win_format
+
+##### ANSIBLE VERSION
+2.8.4

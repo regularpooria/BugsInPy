@@ -1,0 +1,5 @@
+python_version="3.6.9"
+pythonpath="ansible/build/lib/"
+buggy_commit_id="fbdd295cef36b898a97e7f1fa5fab221f145be58"
+fixed_commit_id="d6a51807cd17fd0e2307dd89c8cb790279c822b1"
+test_file="None"

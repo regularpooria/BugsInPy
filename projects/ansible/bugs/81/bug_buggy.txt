@@ -1,0 +1,24 @@
+maven_artifact  fails with "Connection timed out" because our Artifactory blocks if there are a lot of 401.
+`maven_artifact` uses httplib2 that attempts anonymous access even if user/password is provided.
+
+So access log looks like:
+
+```
+/opt/bitnami/apps/artifactory/artifactory_home/logs/request.log:
+
+20191108102644|3|REQUEST|188.163.xxx.xxx|non_authenticated_user|GET|/libs-snapshot-local/xxx/2.14.0-SNAPSHOT/maven-metadata.xml|HTTP/1.1|401|0
+20191108102644|2|REQUEST|188.163.xxx.xxx|reader|GET|/libs-snapshot-local/xxx/2.14.0-SNAPSHOT/maven-metadata.xml|HTTP/1.1|200|792
+```
+
+Our repository Artifactory blocks access (per IP??) if too many 401 happens.
+
+Ansible then fails with:
+
+```
+failed: [stage-server] (item={'name': 'tp-sc', 'jmx_port': 18004}) => {"ansible_loop_var": "item", "changed": false,
+  "msg": "Failed to connect to example.com at port 443: [Errno 110] Connection timed out",
+  "status": -1,
+  "url": "https://example.com/artifactory/libs-snapshot-local/xxx/2.14.0-SNAPSHOT/server-2.14.0-20191108.084713-5.jar.md5"}
+```
+
+There is a patch that fixes the behavior of httplib2 : https://github.com/DorianGeraut/maven_artifact_work/commit/5fff2870ba1e8dee864b21eb3a2ea40c10547484

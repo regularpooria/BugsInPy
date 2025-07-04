@@ -1,0 +1,130 @@
+File module changes mode of src when state is link
+### Summary
+
+The file module is supposed to only affect `dest:`, but in cases where `state: link` and a `mode:` is supplied, the mode of `src:` — if it exists — is changed.
+
+One could argue whether documenting the current behavior is sufficient vs. whether it's better to "fix" the file module, but it isn't clear what "fix" would mean: (1) ignore `mode:` when `state: link`; (2) fail if `state: link` and a `mode:` is given if (a) `src:` does not exist and/or (b) mode of existing `src:` does not match `mode:`. There are plenty of wrong answers available.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+file
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.12.6]
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/utoddl/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /opt/venv-python38-ansible-core-212/lib/python3.8/site-packages/ansible
+  ansible collection location = /home/utoddl/.ansible/collections:/usr/share/ansible/collections
+  executable location = /opt/venv-python38-ansible-core-212/bin/ansible
+  python version = 3.8.12 (default, Sep 16 2021, 10:46:05) [GCC 8.5.0 20210514 (Red Hat 8.5.0-3)]
+  jinja version = 3.1.2
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+BECOME_PLUGIN_PATH(env: ANSIBLE_BECOME_PLUGINS) = ['/usr/share/ansible/plugins/become']
+CACHE_PLUGIN(/etc/ansible/ansible.cfg) = memory
+DEFAULT_ACTION_PLUGIN_PATH(env: ANSIBLE_ACTION_PLUGINS) = ['/usr/share/ansible/plugins/action']
+DEFAULT_CACHE_PLUGIN_PATH(env: ANSIBLE_CACHE_PLUGINS) = ['/usr/share/ansible/plugins/cache']
+DEFAULT_CALLBACK_PLUGIN_PATH(env: ANSIBLE_CALLBACK_PLUGINS) = ['/usr/share/ansible/plugins/callback']
+DEFAULT_CONNECTION_PLUGIN_PATH(env: ANSIBLE_CONNECTION_PLUGINS) = ['/usr/share/ansible/plugins/connection']
+DEFAULT_FILTER_PLUGIN_PATH(env: ANSIBLE_FILTER_PLUGINS) = ['/usr/share/ansible/plugins/filter']
+DEFAULT_FORKS(/etc/ansible/ansible.cfg) = 5
+DEFAULT_GATHERING(env: ANSIBLE_GATHERING) = smart
+DEFAULT_GATHER_SUBSET(env: ANSIBLE_GATHER_SUBSET) = ['!all', 'virtual', 'network']
+DEFAULT_HOST_LIST(env: ANSIBLE_INVENTORY) = ['…']
+DEFAULT_INVENTORY_PLUGIN_PATH(env: ANSIBLE_INVENTORY_PLUGINS) = ['/usr/share/ansible/plugins/inventory']
+DEFAULT_LOG_PATH(env: ANSIBLE_LOG_PATH) = /var/log/ansible.log
+DEFAULT_LOOKUP_PLUGIN_PATH(env: ANSIBLE_LOOKUP_PLUGINS) = ['/usr/share/ansible/plugins/lookup']
+DEFAULT_POLL_INTERVAL(/etc/ansible/ansible.cfg) = 15
+DEFAULT_STDOUT_CALLBACK(env: ANSIBLE_STDOUT_CALLBACK) = yaml
+DEFAULT_STRATEGY_PLUGIN_PATH(env: ANSIBLE_STRATEGY_PLUGINS) = ['/usr/share/ansible/plugins/strategy']
+DEFAULT_TERMINAL_PLUGIN_PATH(env: ANSIBLE_TERMINAL_PLUGINS) = ['/usr/share/ansible/plugins/terminal']
+DEFAULT_TEST_PLUGIN_PATH(env: ANSIBLE_TEST_PLUGINS) = ['/usr/share/ansible/plugins/test']
+DEFAULT_TIMEOUT(env: ANSIBLE_TIMEOUT) = 30
+DEFAULT_TRANSPORT(/etc/ansible/ansible.cfg) = smart
+DEFAULT_VARS_PLUGIN_PATH(env: ANSIBLE_VARS_PLUGINS) = ['/usr/share/ansible/plugins/vars']
+DEFAULT_VAULT_IDENTITY(env: ANSIBLE_VAULT_IDENTITY) = mw
+DEFAULT_VAULT_IDENTITY_LIST(env: ANSIBLE_VAULT_IDENTITY_LIST) = […]
+DISPLAY_SKIPPED_HOSTS(env: ANSIBLE_DISPLAY_SKIPPED_HOSTS) = True
+HOST_KEY_CHECKING(env: ANSIBLE_HOST_KEY_CHECKING) = False
+INTERPRETER_PYTHON(env: ANSIBLE_PYTHON_INTERPRETER) = auto
+RETRY_FILES_ENABLED(/etc/ansible/ansible.cfg) = False
+TRANSFORM_INVALID_GROUP_CHARS(env: ANSIBLE_TRANSFORM_INVALID_GROUP_CHARS) = silently
+
+BECOME:
+======
+
+CACHE:
+=====
+
+CALLBACK:
+========
+
+default:
+_______
+display_skipped_hosts(env: ANSIBLE_DISPLAY_SKIPPED_HOSTS) = True
+
+CLICONF:
+=======
+
+CONNECTION:
+==========
+
+paramiko_ssh:
+____________
+host_key_checking(env: ANSIBLE_HOST_KEY_CHECKING) = False
+
+ssh:
+___
+host_key_checking(env: ANSIBLE_HOST_KEY_CHECKING) = False
+pipelining(env: ANSIBLE_SSH_PIPELINING) = False
+timeout(env: ANSIBLE_TIMEOUT) = 30
+
+HTTPAPI:
+=======
+
+INVENTORY:
+=========
+
+LOOKUP:
+======
+
+NETCONF:
+=======
+
+SHELL:
+=====
+
+sh:
+__
+remote_tmp(/etc/ansible/ansible.cfg) = /tmp/${USER}/.ansible/tmp
+
+VARS:
+====
+```
+
+
+### OS / Environment
+
+Red Hat Enterprise Linux release 8.6 (Ootpa)
+
+### Additional Information
+
+Without this change, users may reasonably expect symbolic links themselves to have the specified mode — for example 0777 or -rwxrwxrwx — when in fact the target of the link (i.e. `src:`) will become world-writable / clobberable.
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

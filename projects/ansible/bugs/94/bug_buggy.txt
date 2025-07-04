@@ -1,0 +1,12 @@
+[ovirt] clear up fetch_nested  parameter works
+##### SUMMARY
+We should document that by default we go only over first level attributes, not any other level of attribute and maybe ADD parameter which enables going deeper.
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+ansible/lib/ansible/modules/cloud/ovirt/*_facts.py
+
+##### ADDITIONAL INFORMATION
+Discussion was originally raised in https://bugzilla.redhat.com/show_bug.cgi?id=1653743

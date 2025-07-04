@@ -1,0 +1,29 @@
+k8s module documentation confusing in examples of reading from files
+##### SUMMARY
+
+When reading the `k8s` module documentation (https://docs.ansible.com/ansible/latest/modules/k8s_module.html#examples), the given examples were a little confusing when it came to creating objects from files.
+
+There is one example near the top "Create a Service object by reading the definition from a file", which one might assume would mean "read the definition from a file on the controller filesystem" (as that's not very clear and could be confusing based on the rest of the examples).
+
+Then a couple examples later, after a comment about "Passing the object definition from a file", there's a more clear task name "Create a Deployment by reading the definition from a local file" (contrast to the next example of "Read definition file from the Ansible controller file system.").
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+k8s
+
+##### ANSIBLE VERSION
+N/A
+
+##### CONFIGURATION
+N/A
+
+##### OS / ENVIRONMENT
+N/A
+
+##### ADDITIONAL INFORMATION
+
+I propose we remove the first 'create service from file' example, since it only serves to confuse the reader. It would tighten up the list of examples, and all the file-related examples would then be under the "Passing the object definition from a file" comment, which makes more sense.
+
+I'll file a PR for this change shortly.

@@ -1,0 +1,73 @@
+Not able to enable intelligence_packs from ansible module for  loganalyticsworkspace
+##### SUMMARY
+I am using azure_rm_loganalyticsworkspace ansible module to enable container monitoring and backup , and it gives me error as  unsupported parameters 
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+azure_rm_loganalyticsworkspace
+
+##### ANSIBLE VERSION
+```
+ansible-playbook 2.8.6
+  config file = /home/devans/ansible.cfg
+  configured module search path = [u'/home/devans/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible-playbook
+  python version = 2.7.5 (default, Apr  9 2019, 16:02:27) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36.0.1)]
+
+```
+
+##### CONFIGURATION
+
+```
+COMMAND_WARNINGS(/home/devans/ansible.cfg) = False
+DEFAULT_GATHERING(/home/devans/ansible.cfg) = smart
+DEFAULT_HOST_LIST(/home/devans/ansible.cfg) = [u'/home/devans/hosts']
+DEFAULT_STDOUT_CALLBACK(/home/devans/ansible.cfg) = yaml
+DEPRECATION_WARNINGS(/home/devans/ansible.cfg) = False
+HOST_KEY_CHECKING(/home/devans/ansible.cfg) = False
+SYSTEM_WARNINGS(/home/devans/ansible.cfg) = False
+
+```
+
+##### OS / ENVIRONMENT
+Oralce Linux 7.4 
+
+
+##### STEPS TO REPRODUCE
+Run below YAML 
+
+
+```
+    azure_rm_loganalyticsworkspace:
+        resource_group: "{{ main_resource_group }}"
+        name: "{{ npe_loganalyticsworkspace_name }}"
+        intelligence_pack:
+            Backup: true
+            Containers: true
+        profile: "{{ profilename }}"
+
+```
+
+
+##### EXPECTED RESULTS
+I assume it creates workspace with those features enabled 
+
+
+##### ACTUAL RESULTS
+
+```
+fatal: [localhost]: FAILED! => changed=false
+  invocation:
+    module_args:
+      intelligence_pack:
+        Backup: true
+        Containers: true
+      name: bglnpeapglogs
+      profile: BGLNPE
+      resource_group: BGL-NPE-ARG-APG
+  msg: 'Unsupported parameters for (azure_rm_loganalyticsworkspace) module: intelligence_pack Supported parameters include: ad_user, adfs_authority_url, api_profile, append_tags, auth_source, cert_validation_mode, client_id, cloud_environment, intelligence_packs, location, name, password, profile, resource_group, retention_in_days, secret, sku, state, subscription_id, tags, tenant'
+
+```

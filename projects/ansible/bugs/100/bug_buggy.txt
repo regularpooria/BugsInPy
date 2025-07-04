@@ -1,0 +1,18 @@
+azure_rm_virtualmachinescalesetinstance_facts should return computer name
+<!--- Verify first that your feature was not already discussed on GitHub -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Describe the new feature/improvement briefly below -->
+Each VM instance in an Azure VM Scale Set (VMSS) has a computer name (hostname) which is distinct from the instance name. Currently azure_rm_virtualmachinescalesetinstance_facts returns the instance name but not the computer name. It would be extremely helpful if the module can return the computer name as well.
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+azure_rm_virtualmachinescalesetinstance_facts
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+We are using this module in [Muchos](https://github.com/apache/fluo-muchos). If azure_rm_virtualmachinescalesetinstance_facts returned the computer name as well, it would help us populate etc/hosts and other related files much more seamlessly.

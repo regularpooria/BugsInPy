@@ -1,0 +1,23 @@
+hcloud dynamic inventory network filtering
+<!--- Verify first that your feature was not already discussed on GitHub -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+@LKaemmerling As discussed in https://github.com/ansible/ansible/issues/59133#issuecomment-515133800, you said there would be network filtering in the hcloud dynamic inventory plugin (https://docs.ansible.com/ansible/latest/plugins/inventory/hcloud.html) in Ansible 2.9. But this functionality still doesn't appear. Could it be added? There are many cases where you only want to run ansible commands against servers in some networks only.
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+hcloud dynamic inventory
+
+
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+
+```
+
+<!--- HINT: You can also paste gist.github.com links for larger files -->

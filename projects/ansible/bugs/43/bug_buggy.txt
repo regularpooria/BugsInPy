@@ -1,0 +1,69 @@
+known_hosts: fails when ~/.ssh missing and path=default
+### Summary
+
+When running the builtin `known_hosts` module without a `path` argument (thus defaulting to `~/.ssh/known_hosts`), it will fail when `~/.ssh/` does not exist.
+
+https://github.com/ansible/awx/issues/10984
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+known_hosts
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.12.0.dev0]
+  config file = None
+  configured module search path = ['/home/runner/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.8/site-packages/ansible
+  ansible collection location = /home/runner/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.8.6 (default, Jan 29 2021, 17:38:16) [GCC 8.4.1 20200928 (Red Hat 8.4.1-1)]
+  jinja version = 2.10.3
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+[WARNING]: You are running the development version of Ansible. You should only run Ansible from "devel" if you are modifying the Ansible engine, or trying out features under development.
+This is a rapidly changing source of code and can become unstable at any point.
+```
+
+
+### OS / Environment
+
+Docker image quay.io/ansible/awx-ee:latest (Image id 139d0f567124 )
+
+### Steps to Reproduce
+
+<!--- Paste example playbooks or commands between quotes below -->
+```sh
+bash-4.4$ ansible localhost -m known_hosts -a 'name=example.com key="example.com ssh-rsa test"'
+```
+
+
+### Expected Results
+
+Success & the given key in a new `~/.ssh/known_hosts`
+
+### Actual Results
+
+```console
+localhost | FAILED! => {
+    "changed": false,
+    "msg": "Failed to write to file /home/runner/.ssh/known_hosts: [Errno 2] No such file or directory: '/home/runner/.ssh/tmpkqkq1oke'"
+}
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

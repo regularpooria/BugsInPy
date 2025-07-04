@@ -1,0 +1,83 @@
+azure_rm_virtualmachine does not preserve availability zone info with generalized option
+##### SUMMARY
+When you try to generalize a vm with availability zones defined in it, zone info is not preserved and must be passed on.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+azure_rm_virtualmachine
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [ u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python2.7/dist-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 2.7.12 (default, Oct  8 2019, 14:14:10) [GCC 5.4.0 20160609]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+When you try to generalize a vm with availability zones defined in it, zone info is not preserved and must be passed on.
+
+ Furthermore zone information it’s not returned by azure_rm_virtualmachine_info so it has to be gathered with azure_rm_resource_info in order to be able to generalize the vm
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: Generalize VM
+  azure_rm_virtualmachine:
+    resource_group: "{{ resourcegroup }}"
+    name: "{{ vm }}"
+    os_type: "{{ os_type | default(omit) }}"
+    generalized: yes
+    state: present 
+
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+Generalized VM
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+<!--- Paste verbatim command output between quotes -->
+```paste below
+    "msg": "You can't change the Availability Zone of a virtual machine (have: [<zone>], want: None)"
+
+```
+##### WORKAROUND
+In order to be able to generalize the VM the following code should be used.
+
+```yaml
+- name: Get VM Availability Zone
+  azure_rm_resource_info:
+    resource_group: "{{ resourcegroup }}"
+    resource_name: "{{ vm }}"
+    resource_type: VirtualMachines 
+    provider: Compute
+  register: result
+
+- name: Generalize VM
+  azure_rm_virtualmachine:
+    resource_group: "{{ resourcegroup }}"
+    name: "{{ vm }}"
+    os_type: "{{ os_type | default(omit) }}"
+    generalized: yes
+    state: present
+    zones: "{{ result.response[0].zones }}"
+```

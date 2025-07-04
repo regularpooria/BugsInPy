@@ -1,0 +1,132 @@
+postgresql_query not apply sql file with copy command
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+postgresql_query not apply sql file with copy command
+for example
+```sql
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 11.1
+-- Dumped by pg_dump version 11.1
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Data for Name: sites; Type: TABLE DATA; Schema: public; Owner: billing
+--
+
+--insert into public.sites (site,description) values ('vs-c06','Инфраструктура');
+COPY public.sites (site, description, link, departmentid, purposeid, os_tenant, vmware_resourcepool) FROM stdin;
+vs-c06	для инфраструктуры		\N	5	vs-c06_5d515af791aca	\N
+\.
+
+
+--
+-- PostgreSQL database dump complete
+--
+```
+
+
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+postgresql_query
+
+##### ANSIBLE VERSION
+```paste below
+ansible 2.8.5
+  config file = /home/davydov/playbook/ansible.cfg
+  configured module search path = [u'/home/davydov/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Aug  7 2019, 00:51:29) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+
+```
+
+##### CONFIGURATION
+
+```paste below
+DEFAULT_PRIVATE_KEY_FILE(/home/ivanov/playbook/ansible.cfg) = /home/davydov/.ssh/ivanov
+DEFAULT_REMOTE_USER(/home/ivanov/playbook/ansible.cfg) = ivanov
+HOST_KEY_CHECKING(/home/ivanov/playbook/ansible.cfg) = False
+
+```
+
+##### OS / ENVIRONMENT
+CentOS Linux release 7.7.1908 (Core)
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+---
+- name: sql
+  hosts: db
+  tasks:
+    - name: apply script
+      become: true
+      become_user: postgres
+      postgresql_query:
+        path_to_script: /tmp/test.sql
+        db: "{{ db_name }}"
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+The full traceback is:
+WARNING: The below traceback may *not* be related to the actual failure.
+  File "/tmp/ansible_postgresql_query_payload_Y2IpGu/__main__.py", line 211, in main
+    cursor.execute(query, arguments)
+  File "/usr/lib64/python2.7/site-packages/psycopg2/extras.py", line 120, in execute
+    return super(DictCursor, self).execute(query, vars)
+
+fatal: [dbserver]: FAILED! => {
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "ca_cert": null,
+            "db": "new_database_test",
+            "login_host": "",
+            "login_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "login_unix_socket": "",
+            "login_user": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "named_args": null,
+            "path_to_script": "/tmp/test.sql",
+            "port": 5432,
+            "positional_args": null,
+            "query": null,
+            "session_role": null,
+            "ssl_mode": "prefer"
+        }
+    },
+    "msg": "Cannot execute SQL '--\n-- PostgreSQL database dump\n--\n\n-- Dumped from database version 11.1\n-- Dumped by pg_dump version 11.1\n\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nSET idle_in_transaction_session_timeout = 0;\nSET client_encoding = 'UTF8';\nSET standard_conforming_strings = on;\nSELECT pg_catalog.set_config('search_path', '', false);\nSET check_function_bodies = false;\nSET client_min_messages = warning;\nSET row_security = off;\n\n--\n-- Data for Name: sites; Type: TABLE DATA; Schema: public; Owner: ********\n--\n\n--insert into public.sites (site,description) values ('vs-c06','Инфраструктура');\nCOPY public.sites (site, description, link, departmentid, purposeid, os_tenant, vmware_resourcepool) FROM stdin;\nvs-c07\tдля инфраструктуры\t\t\\N\t5\tvs-c06_5d515af791aca\t\\N\n\\.\n\n\n--\n-- PostgreSQL database dump complete\n--\n\n\n' None: syntax error at or near \"vs\"\nLINE 24: vs-c07 для инфраструктуры  \\N 5 vs-c06_5d515af791aca \\N\n         ^\n"
+
+```

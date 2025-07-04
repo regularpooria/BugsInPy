@@ -1,0 +1,68 @@
+uptimerobot: fails with stacktrace
+##### SUMMARY
+The uptimerobot module fails with stacktrace on decoding the upstream response.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+The uptimerobot module.
+
+##### ANSIBLE VERSION
+```
+ansible 2.8.1
+  config file = /var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg
+  configured module search path = ['/var/lib/jenkins/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.5/dist-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.5.2 (default, Oct  8 2019, 13:06:37) [GCC 5.4.0 20160609]
+```
+
+##### CONFIGURATION
+```
+ANSIBLE_NOCOWS(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = True
+ANSIBLE_PIPELINING(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = True
+CONDITIONAL_BARE_VARS(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = False
+DEFAULT_FORKS(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = 10
+DEFAULT_HOST_LIST(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = ['/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/<redacted>/inventory.ini']
+DEFAULT_ROLES_PATH(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = ['/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/roles']
+DEFAULT_VAULT_PASSWORD_FILE(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = /var/lib/jenkins/.vault
+MAX_FILE_SIZE_FOR_DIFF(/var/lib/jenkins/workspace/Subtask_Openstack_Playbook/ansible.cfg) = 10485760
+```
+
+##### OS / ENVIRONMENT
+Not relevant.
+
+##### STEPS TO REPRODUCE
+Run something like the following task.
+
+```yaml
+ - name: Monitor - {{ desired_state }}
+    uptimerobot:
+      monitorid: "{{ monitor_id | string }}"
+      apikey: "{{ uptimerobot_api_key }}"
+      state: "{{ desired_state }}"
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+The playbook runs without stacktraces and changes the uptimerobot state to `{{ desired_state }}`.
+
+
+##### ACTUAL RESULTS
+
+```
+FAILED - RETRYING: Monitor - paused (291 retries left).Result was: {
+    "attempts": 10,                                                   
+    "changed": true,                                                  
+    "module_stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 114, in <module>\n  File \"<stdin>\", line 106, in _ansiballz_main\n  File \"<stdin>\", line 49, in invoke_module\n  File \"/usr/lib/python3.5/imp.py\", line 234, in load_module\n    return load_sourc
+e(name, filename, file)\n  File \"/usr/lib/python3.5/imp.py\", line 170, in load_source\n    module = _exec(spec, sys.modules[name])\n  File \"<frozen importlib._bootstrap>\", line 626, in _exec\n  File \"<frozen importlib._bootstrap_external>\", line 665, in exec_module\n  File \"<
+frozen importlib._bootstrap>\", line 222, in _call_with_frames_removed\n  File \"/tmp/ansible_uptimerobot_payload_gp2xmpdx/__main__.py\", line 151, in <module>\n  File \"/tmp/ansible_uptimerobot_payload_gp2xmpdx/__main__.py\", line 131, in main\n  File \"/tmp/ansible_uptimerobot_pay
+load_gp2xmpdx/__main__.py\", line 83, in checkID\n  File \"/usr/lib/python3.5/json/__init__.py\", line 312, in loads\n    s.__class__.__name__))\nTypeError: the JSON object must be str, not 'bytes'\n",
+    "module_stdout": "",                                              
+    "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error",
+    "rc": 1,                                                          
+    "retries": 301                                                    
+}
+```

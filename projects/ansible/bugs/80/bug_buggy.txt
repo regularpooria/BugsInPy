@@ -1,0 +1,61 @@
+ec2 and ec2_instance module overlap
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+Ansible currently contains two modules for managing AWS EC2 instances: [`ec2`](https://docs.ansible.com/ansible/latest/modules/ec2_module.html) and [`ec2_instance`](https://docs.ansible.com/ansible/latest/modules/ec2_instance_module.html).
+
+There is considerable overlap between the modules, but it's unclear what the differences are and why there are two modules in the first place.
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ec2
+ec2_instance
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.10.0.dev0
+  config file = /home/user/.ansible.cfg
+  configured module search path = ['/home/user/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/user/ansible/lib/ansible
+  executable location = /home/user/ansible/bin/ansible
+  python version = 3.7.5 (default, Oct 27 2019, 15:43:29) [GCC 9.2.1 20191022]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+RETRY_FILES_ENABLED(/home/user/.ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Debian bullseye/sid
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+N/A
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+N/A
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+N/A
+```

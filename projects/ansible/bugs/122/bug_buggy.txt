@@ -1,0 +1,101 @@
+win_dns_record incorrectly creates PTR records
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+When specifying a PTR record, the module incorrectly creates the entry.
+
+  - name: Create PTR Record
+    win_dns_record:
+      computer_name: "msdnsserver.example.com"
+      name: "10.202.64.62"
+      state: present
+      type: "PTR"
+      value: "awx_test.example.com"
+      zone: "10.in-addr.arpa"    
+
+Entry created:
+
+10.62.64.202.10     Pointer (PTR)     awx_test.example.com
+
+To correctly create the record I used the following format:
+
+  - name: Create PTR Record
+    win_dns_record:
+      computer_name: "msdnsserver.example.com"
+      name: "62.64.202"
+      state: present
+      type: "PTR"
+      value: "awx_test.example.com"
+      zone: "10.in-addr.arpa"    
+
+which created record:
+
+10.202.64.62     Pointer (PTR)     awx_test.example.com
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+win_dns_record
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+# ansible --version
+ansible 2.8.3
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 12:19:05) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
+
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+# ansible-config dump --only-changed
+ANSIBLE_PIPELINING(/etc/ansible/ansible.cfg) = True
+DEFAULT_LOAD_CALLBACK_PLUGINS(/etc/ansible/ansible.cfg) = True
+DEFAULT_LOG_PATH(/etc/ansible/ansible.cfg) = /var/log/ansible.log
+SHOW_CUSTOM_STATS(/etc/ansible/ansible.cfg) = True
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Red Hat Enterprise Linux Server release 7.6 (Maipo)
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+  - name: Create PTR Record
+    win_dns_record:
+      computer_name: "msdnsserver.example.com"
+      name: "10.202.64.62"
+      state: present
+      type: "PTR"
+      value: "awx_test.example.com"
+      zone: "10.in-addr.arpa"    
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+10.202.64.62     Pointer (PTR)     awx_test.example.com
+
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+10.62.64.202.10     Pointer (PTR)     awx_test.example.com
+```

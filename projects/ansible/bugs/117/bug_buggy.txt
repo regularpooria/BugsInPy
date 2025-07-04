@@ -1,0 +1,207 @@
+cli_command newline argument issue
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+cli_command returns error regarding unexpected newline argument on command prompt
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+cli_command
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.0.dev0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/ansibleUser/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /mnt/c/ansible/repo/devel/ansible/lib/ansible
+  executable location = /mnt/c/ansible/repo/devel/ansible/bin/ansible
+  python version = 2.7.15+ (default, Nov 27 2018, 23:36:35) [GCC 7.3.0]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+HOST_KEY_CHECKING(/etc/ansible/ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+```
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=18.04
+DISTRIB_CODENAME=bionic
+DISTRIB_DESCRIPTION="Ubuntu 18.04.2 LTS"
+NAME="Ubuntu"
+VERSION="18.04.2 LTS (Bionic Beaver)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 18.04.2 LTS"
+VERSION_ID="18.04"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=bionic
+UBUNTU_CODENAME=bionic
+```
+
+Network device: Ericsson Router 6672 and 6675
+IPOS-v19.1.1.803.107-Release
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+```
+- name: save configuration to flash memory
+  cli_command:
+    command: save configuration
+    prompt: 
+    - '(y/n)'
+    answer: 
+      - 'y'
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+The task should answer the prompt correctly with "y" and continue
+
+```
+ok: [10.68.80.242] => {
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "answer": [
+                "y"
+            ],
+            "check_all": false,
+            "command": "save configuration",
+            "newline": true,
+            "prompt": [
+                "(y/n)"
+            ],
+            "sendonly": false
+        }
+    },
+    "stdout": "Save to file: /flash/deviceConfig.cfg\nTarget file exists, overwrite? (y/n) y",
+    "stdout_lines": [
+        "Save to file: /flash/decviceConfig.cfg",
+        "Target file exists, overwrite? (y/n) y"
+    ]
+}
+ok: [10.68.80.121] => {
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "answer": [
+                "y"
+            ],
+            "check_all": false,
+            "command": "save configuration",
+            "newline": true,
+            "prompt": [
+                "(y/n)"
+            ],
+            "sendonly": false
+        }
+    },
+    "stdout": "Save to file: /flash/deviceConfig.cfg\nTarget file exists, overwrite? (y/n) y",
+    "stdout_lines": [
+        "Save to file: /flash/deviceConfig.cfg",
+        "Target file exists, overwrite? (y/n) y"
+    ]
+}
+```
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+```
+<10.68.80.121> attempting to start connection
+<10.68.80.121> using connection plugin network_cli
+<10.68.80.242> attempting to start connection
+<10.68.80.242> using connection plugin network_cli
+<10.68.80.121> found existing local domain socket, using it!
+<10.68.80.121> updating play_context for connection
+<10.68.80.121>
+<10.68.80.121> local domain socket path is /home/ansibleUser/.ansible/pc/7ebc00b4de
+<10.68.80.242> found existing local domain socket, using it!
+<10.68.80.242> updating play_context for connection
+<10.68.80.242>
+<10.68.80.242> local domain socket path is /home/ansibleUser/.ansible/pc/4429d07464
+<10.68.80.121> ESTABLISH LOCAL CONNECTION FOR USER: ansibleUser
+<10.68.80.121> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129 `" && echo ansible-tmp-1565946129.18-225284847083129="` echo /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129 `" ) && sleep 0'
+<10.68.80.242> ESTABLISH LOCAL CONNECTION FOR USER: ansibleUser
+<10.68.80.242> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358 `" && echo ansible-tmp-1565946129.19-185648273166358="` echo /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358 `" ) && sleep 0'
+Using module file /mnt/c/ansible/repo/devel/ansible/lib/ansible/modules/network/cli/cli_command.py
+Using module file /mnt/c/ansible/repo/devel/ansible/lib/ansible/modules/network/cli/cli_command.py
+<10.68.80.242> PUT /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/tmpsaD_6r TO /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358/AnsiballZ_cli_command.py
+<10.68.80.121> PUT /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/tmpwf0Dac TO /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129/AnsiballZ_cli_command.py
+<10.68.80.242> EXEC /bin/sh -c 'chmod u+x /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358/ /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358/AnsiballZ_cli_command.py && sleep 0'
+<10.68.80.121> EXEC /bin/sh -c 'chmod u+x /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129/ /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129/AnsiballZ_cli_command.py && sleep 0'
+<10.68.80.242> EXEC /bin/sh -c '/usr/bin/python /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358/AnsiballZ_cli_command.py && sleep 0'
+<10.68.80.121> EXEC /bin/sh -c '/usr/bin/python /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129/AnsiballZ_cli_command.py && sleep 0'
+<10.68.80.242> EXEC /bin/sh -c 'rm -f -r /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.19-185648273166358/ > /dev/null 2>&1 && sleep 0'
+<10.68.80.121> EXEC /bin/sh -c 'rm -f -r /home/ansibleUser/.ansible/tmp/ansible-local-13435c4s0G5/ansible-tmp-1565946129.18-225284847083129/ > /dev/null 2>&1 && sleep 0'
+The full traceback is:
+WARNING: The below traceback may *not* be related to the actual failure.
+  File "/tmp/ansible_cli_command_payload_Z9SLy8/__main__.py", line 167, in main
+    response = connection.get(**module.params)
+  File "/tmp/ansible_cli_command_payload_Z9SLy8/ansible_cli_command_payload.zip/ansible/module_utils/connection.py", line 186, in __rpc__
+    raise ConnectionError(to_text(msg, errors='surrogate_then_replace'), code=code)
+
+fatal: [10.68.80.121]: FAILED! => {
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "answer": [
+                "y"
+            ],
+            "check_all": false,
+            "command": "save configuration",
+            "newline": true,
+            "prompt": [
+                "(y/n)"
+            ],
+            "sendonly": false
+        }
+    },
+    "msg": "get() got an unexpected keyword argument 'newline'"
+}
+The full traceback is:
+WARNING: The below traceback may *not* be related to the actual failure.
+  File "/tmp/ansible_cli_command_payload_nNw0EE/__main__.py", line 167, in main
+    response = connection.get(**module.params)
+  File "/tmp/ansible_cli_command_payload_nNw0EE/ansible_cli_command_payload.zip/ansible/module_utils/connection.py", line 186, in __rpc__
+    raise ConnectionError(to_text(msg, errors='surrogate_then_replace'), code=code)
+
+fatal: [10.68.80.242]: FAILED! => {
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "answer": [
+                "y"
+            ],
+            "check_all": false,
+            "command": "save configuration",
+            "newline": true,
+            "prompt": [
+                "(y/n)"
+            ],
+            "sendonly": false
+        }
+    },
+    "msg": "get() got an unexpected keyword argument 'newline'"
+}
+```
+
+If newline parameter in lib/ansible/modules/network/cli/cli_command.py (line: 147)
+is commented out the task succeeds with the expected results.
+Different argument options in playbook have been tried, nothing resulted in a positive outcome.

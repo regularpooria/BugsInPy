@@ -1,0 +1,121 @@
+zabbix_host module not idempotent with host_groups
+##### SUMMARY
+Using Zabbix 4.0 Server, when a list of `host_groups` is provided for the zabbix_host module, it is not idempotent, but the behavior only appears when using Host Groups which are already existent on the Zabbix Server (ex. "Linux Server"). If i create own Host Groups on the Zabbix Server then the Module behaves accordingly and the task does not change on the second run.  
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+zabbix_host module
+
+##### ANSIBLE VERSION
+```
+ansible 2.7.8
+  config file = /home/userx/git/somefolder/ansible-test/ansible.cfg
+  configured module search path = ['/home/userx/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3/dist-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 3.7.3 (default, Apr  3 2019, 05:39:12) [GCC 8.3.0]
+```
+
+##### OS / ENVIRONMENT
+N/A
+
+
+##### STEPS TO REPRODUCE
+Running the Playbook with already existing Host Groups (like "Linux Servers" or "Hypervisors") on Zabbix the task keeps changing all the time.
+
+```yaml
+- name: register zabbix host on the server
+  vars:
+    zabbix_agent_login_user: "admin"
+    zabbix_agent_login_password: "1234"
+  delegate_to: zabbix-server.example.com
+  zabbix_host:
+    server_url: "http://{{ zabbix_agent_server }}/"
+    login_user: "{{ zabbix_agent_login_user }}"
+    login_password: "{{ zabbix_agent_login_password }}"
+    host_name: "{{ ansible_fqdn }}"
+    interfaces:
+      - type: 1 #agent
+        main: 1
+        useip: 1
+        port: 10050
+        ip: "{{ ansible_default_ipv4['address'] }}"
+        dns: "{{ ansible_fqdn }}"
+    visible_name: "{{ ansible_fqdn }}"
+    status: enabled
+    state: present
+    host_groups:
+      - Linux Servers
+      - Hypervisors
+    link_templates:
+      - Template OS Linux
+      - Template App SSH Service
+      - Template Module ICMP Ping
+  notify: restart zabbix-agent
+```
+This resuls in 
+```
+TASK [Gathering Facts] **********************************************************************************************************************************************************************************************
+ok: [zabbix-client.example.com]
+
+TASK [zabbix_agent : register zabbix host on the server] ************************************************************************************************************************************************************
+changed: [zabbix-client.example.com -> zabbix-server.example.com]
+
+RUNNING HANDLER [zabbix_agent : restart zabbix-agent] ***************************************************************************************************************************************************************
+changed: [zabbix-client.example.com]
+
+PLAY RECAP **********************************************************************************************************************************************************************************************************
+zabbix-client.example.com : ok=3    changed=2    unreachable=0    failed=0   
+```
+
+Whereas when i create my own Host groups (test, test2) on the Zabbix Server the task does not change anything on the second run:
+
+```yaml
+- name: register zabbix host on the server
+  vars:
+    zabbix_agent_login_user: "admin"
+    zabbix_agent_login_password: "1234"
+  delegate_to: zabbix-server.example.com
+  zabbix_host:
+    server_url: "http://{{ zabbix_agent_server }}/"
+    login_user: "{{ zabbix_agent_login_user }}"
+    login_password: "{{ zabbix_agent_login_password }}"
+    host_name: "{{ ansible_fqdn }}"
+    interfaces:
+      - type: 1 #agent
+        main: 1
+        useip: 1
+        port: 10050
+        ip: "{{ ansible_default_ipv4['address'] }}"
+        dns: "{{ ansible_fqdn }}"
+    visible_name: "{{ ansible_fqdn }}"
+    status: enabled
+    state: present
+    host_groups:
+      - test
+      - test2
+    link_templates:
+      - Template OS Linux
+      - Template App SSH Service
+      - Template Module ICMP Ping
+  notify: restart zabbix-agent
+```
+
+```
+TASK [Gathering Facts] **********************************************************************************************************************************************************************************************
+ok: [zabbix-client.example.com]
+
+TASK [zabbix_agent : register zabbix host on the server] ************************************************************************************************************************************************************
+ok: [zabbix-client.example.com -> zabbix-server.example.com]
+
+PLAY RECAP **********************************************************************************************************************************************************************************************************
+zabbix-client.example.com : ok=2    changed=0    unreachable=0    failed=0   
+```
+
+##### EXPECTED RESULTS
+The Module should be idempotent when adding a Host to already existing (or internal) Host Groups of the Zabbix Server and not keep changing. 
+
+##### ACTUAL RESULTS
+When already existing (internal) Host Groups like "Linux Servers" or "Hypervisors" are used the Task keeps changing on every run.

@@ -1,0 +1,126 @@
+nmcli not working on Centos8: `No package NetworkManager-glib available`
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+The [docu](https://docs.ansible.com/ansible/latest/modules/nmcli_module.html) lists some requirements to be installed:
+
+- NetworkManager-glib
+- libnm-qt-devel.x86_64
+- nm-connection-editor.x86_64-
+- libsemanage-python
+- policycoreutils-python
+
+however there is no package `NetworkManager-glib` available in `CentOS 8` and it is not clear how to install the required libraries.
+
+```bash
+fatal: [node002]: FAILED! => {"changed": false, "failures": ["No package NetworkManager-glib available."], "msg": "Failed to install some of the specified packages", "rc": 1, "results": []}
+```
+
+There seem only `NetworkManager-libnm.x86_64 : Libraries for adding NetworkManager support to applications (new API).` available,  but installing this package will end up in
+
+```bash
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: ValueError: Namespace NMClient not available
+fatal: [node001]: FAILED! => {"changed": false, "msg": "Failed to import the required Python library (NetworkManager glib API) on node001's Python /usr/bin/python3. Please read module documentation and install in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter, please consult the documentation on ansible_python_interpreter"}
+```
+
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+
+component `nmcli`
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```
+ansible 2.9.0
+  config file = /home/aedu/ansible.cfg
+  configured module search path = ['/home/aedu/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 3.7.4 (default, Oct  4 2019, 06:57:26) [GCC 9.2.0]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```
+DEFAULT_HOST_LIST(/home/aedu/ansible.cfg) = ['/home/aedu/inventory.yml']
+DEFAULT_REMOTE_USER(/home/aedu/ansible.cfg) = ansible
+DEFAULT_ROLES_PATH(/home/aedu/ansible.cfg) = ['/home/aedu/roles']
+DEFAULT_TIMEOUT(/home/aedu/ansible.cfg) = 10
+DEFAULT_VAULT_PASSWORD_FILE(/home/aedu/ansible.cfg) = /home/aedu/.ssh/wyssmann
+RETRY_FILES_SAVE_PATH(/home/aedu/ansible.cfg) = /home/aedu/.ansible-retry
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, networkNetworkManager-libnm.x86_64 : Libraries for adding NetworkManager support to applications (new API).
+ device firmware, etc. -->
+```bash
+# uname -a
+Linux node002 4.18.0-80.11.2.el8_0.x86_64 #1 SMP Tue Sep 24 11:32:19 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+# cat /etc/os-release 
+NAME="CentOS Linux"
+VERSION="8 (Core)"
+ID="centos"
+ID_LIKE="rhel fedora"
+VERSION_ID="8"
+PLATFORM_ID="platform:el8"
+PRETTY_NAME="CentOS Linux 8 (Core)"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:centos:centos:8"
+HOME_URL="https://www.centos.org/"
+BUG_REPORT_URL="https://bugs.centos.org/"
+
+CENTOS_MANTISBT_PROJECT="CentOS-8"
+CENTOS_MANTISBT_PROJECT_VERSION="8"
+REDHAT_SUPPORT_PRODUCT="centos"
+REDHAT_SUPPORT_PRODUCT_VERSION="8"
+```
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+As using `python3` the packages are slighty different I've updated these
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: install needed network manager libs
+  package:
+    name:
+      - NetworkManager-libnm
+      - nm-connection-editor
+      - python3-libsemanage
+      - python3-policycoreutils
+    state: present
+
+- name: Configure {{ iface.name }}
+  nmcli:
+    conn_name: '{{ iface.name }}'
+    ifname: '{{ iface.name }}'
+    type: ethernet
+    ip4: '{{ ipv4.address }}'
+    gw4: '{{ ipv4.gateway }}'
+    ip6: '{{ ipv6.address }}'
+    gw6: '{{ ipv6.gateway }}'
+    state: present
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+nmcli works fine
+
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+fatal: [node002]: FAILED! => {"changed": false, "failures": ["No package NetworkManager-glib available."], "msg": "Failed to install some of the specified packages", "rc": 1, "results": []}
+```

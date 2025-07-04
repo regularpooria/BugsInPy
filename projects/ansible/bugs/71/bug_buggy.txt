@@ -1,0 +1,22 @@
+[get_url] argument sha256sum declared deprecated without target version
+### SUMMARY
+```
+  sha256sum:
+    description:
+      - If a SHA-256 checksum is passed to this parameter, the digest of the
+        destination file will be calculated after it is downloaded to ensure
+        its integrity and verify that the transfer completed successfully.
+        This option is deprecated. Use C(checksum) instead.
+```
+
+There is no `module.deprecate` either for `sha256sum`.
+
+the argument has been declared deprecated in commit b3b11fbce26 (2017)
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+get_url
+
+* ansible version: 2.10

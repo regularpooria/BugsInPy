@@ -1,0 +1,59 @@
+Redfish_command "IndicatorLed*" command execute failed on Lenovo blade server.
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+-When execute "IndicatorLed*" command on blade servers, it will show error message  "Key IndicatorLED not found". That is because blade servers have two chassis. /redfish/v1/chassis/1 is for the node itself , and it has the key IndicatorLED. /redfish/v1/chassis/2 is for the chassis the node located in and it doesn't have key IndicatorLED. Ansible will execute set IndicatorLed command on every chassis it found but only return the results of the last chassis, which cause this fail.
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+/lib/ansible/modules/remote_management/redfish/redfish_command.py
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.10.0.dev0
+  config file = None
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /root/.local/lib/python2.7/site-packages/ansible
+  executable location = /opt/python/python27/bin/ansible
+  python version = 2.7.6 (default, Feb  8 2015, 07:53:59) [GCC 4.8.3 20140911 (Red Hat 4.8.3-9)]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+/opt/python/python27/lib/python2.7/site-packages/cryptography/hazmat/primitives/constant_time.py:26: CryptographyDeprecationWarning: Support for your Python version is deprecated. The next version of cryptography will remove support. Please upgrade to a release (2.7.7+) that supports hmac.compare_digest as soon as possible.
+  utils.PersistentlyDeprecated2018,
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Redhat 7
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+ /opt/python/python27/bin/ansible localhost -m redfish_command -a "category=Chassis command= IndicatorLedOn  baseuri=10.245.23.209  username=USERID password= " 
+```
+The remote server is Lenovo blade server SN550, and it located in chassis. Execute IndicatorLedOn  command and it failed, which is because the server has two chassis members. chassis/1 is for the node and chassis/2 is for the chassis. The chassis/2 don't have the property IndicatorLed but Ansible will execute IndicatorLedOn  command on all memebers it found, 
+
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+It should return message that on chassis/1 the command execute successfully. And  chassis/2 doesn't have IndicatorLED properties.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+ It returns false message: "Key IndicatorLED not found".
+<!--- Paste verbatim command output between quotes -->
+```paste below
+"Key IndicatorLED not found".
+```

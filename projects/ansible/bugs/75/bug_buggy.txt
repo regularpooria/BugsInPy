@@ -1,0 +1,143 @@
+Impossible to modify attribute of a ovirt VM created by cloning a template
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+We try to maintain VM's configuration using the ovirt_vm module using a single playbook (that does not change) and a yaml configuration file to describe the VM (that change during the life of the VM).
+The VM is created from a template as a clone/independant version. The creation is done with ansible-playbook without error.
+But when we try to change an attribute (for example : description) in the yaml configuration file, the execution of the playbook fails.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ovirt_vm
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.1
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 14:33:56) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+Empty output
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+The target is an uptodate RHV installation (version 4.3.6.7).
+We tried to use 2 differents hosts to execute the playbook :
+- ubuntu 18.04 with ansible and ovirt-engine-sdk-python installed with pip3
+- the HostedEngine of RHV : RHEL 7.7 with uptodate versions of ovirt-engine-sdk-python and ansible package
+
+The result is the same in both cases.
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+First execution of the playbook to create the VM :
+ansible-playbook template_bug.yaml -e 'vm_file=vm.yaml'
+
+Content of vm.yaml file is :
+```yaml
+---
+vm_name: "TEST-TemplateBug"
+vm_template: "SYS-Ubuntu16"
+vm_description: "Original description"
+```
+
+Second execution of the playbook in order to modify VM description :
+Same command but with a different vm.yaml file :
+```yaml
+---
+vm_name: "TEST-TemplateBug"
+vm_template: "SYS-Ubuntu16"
+vm_description: "New description"
+```
+Content of the playbook:
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+---
+# Doc : https://docs.ansible.com/ansible/latest/modules/ovirt_vm_module.html
+
+- name: Template Bug
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - "rhv_connection.yaml"
+    - "{{ vm_file }}"
+
+  vars_prompt:
+    - name: rhv_password
+      prompt: "Password"
+      private: yes
+
+  pre_tasks:
+    - name: "RHV connection"
+      ovirt_auth:
+        url: "{{ rhv_url }}"
+        username: "{{ rhv_login }}"
+        password: "{{ rhv_password }}"
+        ca_file: "{{ rhv_cert }}"
+        insecure: false
+      tags:
+        - always
+
+  tasks:
+    - name: "VM {{ vm_name }} creation/modification"
+      ovirt_vm:
+        auth: "{{ ovirt_auth }}"
+        name: "{{ vm_name }}"
+        template: "{{ vm_template }}"
+        description: "{{ vm_description }}"
+        state: present
+        clone: yes
+        cluster: "{{ rhv_cluster }}"
+        
+  post_tasks:
+    - name: RHV log out
+      ovirt_auth:
+        state: absent
+        ovirt_auth: "{{ ovirt_auth }}"
+      tags:
+        - always
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+We expected the modification of description attribute of the VM.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+The second execution of ansible-playbook failed with error.
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+ansible-playbook template_bug.yaml -e 'vm_file=vm.yaml'
+Password: 
+
+PLAY [Template Bug] **************************************************************************************************************************************************************************************************************************
+
+TASK [RHV connection] ************************************************************************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [VM TEST-TemplateBug creation/modification] *********************************************************************************************************************************************************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: Error: Fault reason is "Operation Failed". Fault detail is "[Cannot edit VM. The requested template doesn't belong to the same base template as the original template.]". HTTP response code is 400.
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "Fault reason is \"Operation Failed\". Fault detail is \"[Cannot edit VM. The requested template doesn't belong to the same base template as the original template.]\". HTTP response code is 400."}
+
+PLAY RECAP ***********************************************************************************************************************************************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+```

@@ -1,0 +1,23 @@
+Add example of Setup Module with delegated_facts
+<!--- Verify first that your improvement is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+Please update the documentation for the Setup module to include a note to check the Delegated Facts (https://docs.ansible.com/ansible/latest/user_guide/playbooks_delegation.html#delegated-facts) documentation. I spent a long time trying to figure out how to set just the required facts for a group of servers remote servers and it was simple once I found the right document.
+Or better yet, include the example from the Delegated Facts in the Examples section of the Setup module.
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+Setup module
+
+##### ANSIBLE VERSION
+N/A
+##### CONFIGURATION
+N/A
+##### OS / ENVIRONMENT
+N/A
+##### ADDITIONAL INFORMATION
+Directly related information would be super helpful and save a lot of Google Search time. 

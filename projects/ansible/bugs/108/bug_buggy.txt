@@ -1,0 +1,186 @@
+"maximum recursion depth exceeded in __instancecheck__" error in fortios httpapi with the latest devel / stable-2.9 branches
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+When running the latest devel/stable-2.0 branches of Ansible (as 8/30/2019), fortios httpapi failed with message: The error was: ansible.module_utils.connection.ConnectionError: maximum recursion depth exceeded in __instancecheck__
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+httpapi
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.0.dev0
+  config file = None
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.7/site-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.7.4 (default, Jul 13 2019, 14:04:11) [GCC 8.3.0]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+N/A
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Test with docker:
+FROM python:3.7
+...
+RUN pip3 install git+https://github.com/ansible/ansible.git
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+1. You need a fortigate device or virtual appliance to test it
+2. inventories file
+[fgt1]
+fgt1 ansible_host=192.168.210.11
+
+[fortios:children]
+fgt1
+
+[fortios:vars]
+ansible_network_os=fortios
+ansible_user=admin
+ansible_password=fortinet
+ansible_become=no
+ansible_become_method=disable
+ansible_httpapi_use_ssl=true
+ansible_httpapi_validate_certs=false
+ansible_httpapi_timeout=300
+3. playbook, see blow
+4. run, for example,
+ansible-playbook -i ./inventories/hosts ./test/test_fos_facts_01.yml -e "ansible_python_interpreter=/usr/local/bin/python" 
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+---
+- name: Test FortiOS Facts 01 - with fortios httpapi
+  hosts: fgt1
+  connection: httpapi
+  gather_facts: False
+  vars:
+    vdom: "root"
+
+  tasks:
+  - name: gather basic system status facts
+    fortios_facts:
+      vdom:  "{{ vdom }}"
+      gather_subset: [{"fact": "system_status_select"}]
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+the playbook should be able to gather facts from fortios device.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+fatal: [192.168.210.11]: FAILED! => {
+    "changed": false,
+    "module_stderr": "Traceback (most recent call last):\n  File \"/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py\", line 102, in <module>\n    _ansiballz_main()\n  File \"/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py\", line 94, in _ansiballz_main\n    invoke_module(zipped_mod, temp_path, ANSIBALLZ_PARAMS)\n  File \"/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py\", line 40, in invoke_module\n    runpy.run_module(mod_name='ansible.modules.network.fortios.fortios_facts', init_globals=None, run_name='__main__', alter_sys=False)\n  File \"/usr/local/lib/python3.7/runpy.py\", line 208, in run_module\n    return _run_code(code, {}, init_globals, run_name, mod_spec)\n  File \"/usr/local/lib/python3.7/runpy.py\", line 85, in _run_code\n    exec(code, run_globals)\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/modules/network/fortios/fortios_facts.py\", line 282, in <module>\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/modules/network/fortios/fortios_facts.py\", line 253, in main\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/facts.py\", line 90, in get_facts\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/facts.py\", line 81, in get_network_legacy_facts\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/system/system.py\", line 40, in populate_facts\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/system/system.py\", line 49, in system_fact\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/fortios.py\", line 156, in monitor\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/connection.py\", line 185, in __rpc__\nansible.module_utils.connection.ConnectionError: maximum recursion depth exceeded in __instancecheck__\n",
+    "module_stdout": "",
+    "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error",
+    "rc": 1
+}
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+root@186cebecf709:/workspaces/fndn_ansible# ansible-playbook -i ./inventories/hosts ./test/test_fos_facts_01.yml -e "ansible_python_interpreter=/usr/local/bin/python" -vvvv
+ansible-playbook 2.9.0.dev0
+  config file = None
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.7/site-packages/ansible
+  executable location = /usr/local/bin/ansible-playbook
+  python version = 3.7.4 (default, Jul 13 2019, 14:04:11) [GCC 8.3.0]
+No config file found; using defaults
+setting up inventory plugins
+host_list declined parsing /workspaces/fndn_ansible/inventories/hosts as it did not pass its verify_file() method
+auto declined parsing /workspaces/fndn_ansible/inventories/hosts as it did not pass its verify_file() method
+Not replacing invalid character(s) "{'.', '1'}" in group name (192.168.210.11)
+[DEPRECATION WARNING]: The TRANSFORM_INVALID_GROUP_CHARS settings is set to allow bad characters in group names by default, this will change, but still be user configurable on 
+deprecation. This feature will be removed in version 2.10. Deprecation warnings can be disabled by setting deprecation_warnings=False in ansible.cfg.
+ [WARNING]: Invalid characters were found in group names but not replaced, use -vvvv to see details
+
+Not replacing invalid character(s) "{'.', '1'}" in group name (192.168.210.11)
+Parsed /workspaces/fndn_ansible/inventories/hosts inventory source with ini plugin
+ [WARNING]: Found both group and host with same name: 192.168.210.11
+
+Loading callback plugin default of type stdout, v2.0 from /usr/local/lib/python3.7/site-packages/ansible/plugins/callback/default.py
+
+PLAYBOOK: test_fos_facts_01.yml *************************************************************************************************************************************************
+Positional arguments: ./test/test_fos_facts_01.yml
+verbosity: 4
+connection: smart
+timeout: 10
+become_method: sudo
+tags: ('all',)
+inventory: ('/workspaces/fndn_ansible/inventories/hosts',)
+extra_vars: ('ansible_python_interpreter=/usr/local/bin/python',)
+forks: 5
+1 plays in ./test/test_fos_facts_01.yml
+
+PLAY [Test FortiOS Facts 01 - with fortios httpapi] *****************************************************************************************************************************
+META: ran handlers
+
+TASK [gather basic system status facts] *****************************************************************************************************************************************
+task path: /workspaces/fndn_ansible/test/test_fos_facts_01.yml:10
+<192.168.210.11> attempting to start connection
+<192.168.210.11> using connection plugin httpapi
+<192.168.210.11> local domain socket does not exist, starting it
+<192.168.210.11> control socket path is /root/.ansible/pc/7662dd71f8
+<192.168.210.11> local domain socket listeners started successfully
+<192.168.210.11> loaded API plugin for network_os fortios
+<192.168.210.11> 
+<192.168.210.11> local domain socket path is /root/.ansible/pc/7662dd71f8
+<192.168.210.11> ESTABLISH LOCAL CONNECTION FOR USER: root
+<192.168.210.11> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875 `" && echo ansible-tmp-1567183621.2818167-276822456078875="` echo /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875 `" ) && sleep 0'
+Using module file /usr/local/lib/python3.7/site-packages/ansible/modules/network/fortios/fortios_facts.py
+<192.168.210.11> PUT /root/.ansible/tmp/ansible-local-7616x_tmou8t/tmp_ymij6o2 TO /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py
+<192.168.210.11> EXEC /bin/sh -c 'chmod u+x /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/ /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py && sleep 0'
+<192.168.210.11> EXEC /bin/sh -c '/usr/local/bin/python /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py && sleep 0'
+<192.168.210.11> EXEC /bin/sh -c 'rm -f -r /root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/ > /dev/null 2>&1 && sleep 0'
+The full traceback is:
+Traceback (most recent call last):
+  File "/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py", line 102, in <module>
+    _ansiballz_main()
+  File "/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py", line 94, in _ansiballz_main
+    invoke_module(zipped_mod, temp_path, ANSIBALLZ_PARAMS)
+  File "/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py", line 40, in invoke_module
+    runpy.run_module(mod_name='ansible.modules.network.fortios.fortios_facts', init_globals=None, run_name='__main__', alter_sys=False)
+  File "/usr/local/lib/python3.7/runpy.py", line 208, in run_module
+    return _run_code(code, {}, init_globals, run_name, mod_spec)
+  File "/usr/local/lib/python3.7/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/modules/network/fortios/fortios_facts.py", line 282, in <module>
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/modules/network/fortios/fortios_facts.py", line 253, in main
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/facts.py", line 90, in get_facts
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/facts.py", line 81, in get_network_legacy_facts
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/system/system.py", line 40, in populate_facts
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/system/system.py", line 49, in system_fact
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/fortios.py", line 156, in monitor
+  File "/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/connection.py", line 185, in __rpc__
+ansible.module_utils.connection.ConnectionError: maximum recursion depth exceeded in __instancecheck__
+
+fatal: [192.168.210.11]: FAILED! => {
+    "changed": false,
+    "module_stderr": "Traceback (most recent call last):\n  File \"/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py\", line 102, in <module>\n    _ansiballz_main()\n  File \"/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py\", line 94, in _ansiballz_main\n    invoke_module(zipped_mod, temp_path, ANSIBALLZ_PARAMS)\n  File \"/root/.ansible/tmp/ansible-local-7616x_tmou8t/ansible-tmp-1567183621.2818167-276822456078875/AnsiballZ_fortios_facts.py\", line 40, in invoke_module\n    runpy.run_module(mod_name='ansible.modules.network.fortios.fortios_facts', init_globals=None, run_name='__main__', alter_sys=False)\n  File \"/usr/local/lib/python3.7/runpy.py\", line 208, in run_module\n    return _run_code(code, {}, init_globals, run_name, mod_spec)\n  File \"/usr/local/lib/python3.7/runpy.py\", line 85, in _run_code\n    exec(code, run_globals)\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/modules/network/fortios/fortios_facts.py\", line 282, in <module>\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/modules/network/fortios/fortios_facts.py\", line 253, in main\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/facts.py\", line 90, in get_facts\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/facts.py\", line 81, in get_network_legacy_facts\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/system/system.py\", line 40, in populate_facts\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/facts/system/system.py\", line 49, in system_fact\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/network/fortios/fortios.py\", line 156, in monitor\n  File \"/tmp/ansible_fortios_facts_payload_cugsx7mm/ansible_fortios_facts_payload.zip/ansible/module_utils/connection.py\", line 185, in __rpc__\nansible.module_utils.connection.ConnectionError: maximum recursion depth exceeded in __instancecheck__\n",
+    "module_stdout": "",
+    "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error",
+    "rc": 1
+}
+
+PLAY RECAP **********************************************************************************************************************************************************************
+192.168.210.11             : ok=0    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+
+```

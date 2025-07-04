@@ -1,0 +1,73 @@
+Clarify ansible-galaxy collection install warning message
+### Summary
+
+```(venv) ➜  ansible-navigator git:(main) ansible-galaxy collection install cisco.ios -p ./collections
+Starting galaxy collection install process
+[WARNING]: The specified collections path '/Users/bthornto/github/ansible-navigator/collections' is not part of the configured Ansible collections paths '/Users/bthornto/.ansible/collections:/usr/share/ansible/collections'. The installed collection won't be
+picked up in an Ansible run.
+```
+It will be picked up in an Ansible run, in fact playbook adjacent collections are fully Supported.
+
+Can `, unless within a playbook adjacent collections directory` be added to the message?
+
+### Issue Type
+
+Bug Report
+
+### Component Name
+
+ansible-galaxy
+
+### Ansible Version
+
+```console
+$ ansible --version
+
+ansible [core 2.11.0]
+  config file = None
+  configured module search path = ['/Users/bthornto/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/bthornto/github/ansible-navigator/venv/lib/python3.8/site-packages/ansible
+  ansible collection location = /Users/bthornto/.ansible/collections:/usr/share/ansible/collections
+  executable location = /Users/bthornto/github/ansible-navigator/venv/bin/ansible
+  python version = 3.8.2 (default, Dec 21 2020, 15:06:04) [Clang 12.0.0 (clang-1200.0.32.29)]
+  jinja version = 3.0.0
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+```
+
+
+### OS / Environment
+
+all
+
+### Steps to Reproduce
+
+<!--- Paste example playbooks or commands between quotes below -->
+```shell
+(venv) ➜  ansible-navigator git:(main) ansible-galaxy collection install cisco.ios -p ./collections
+Starting galaxy collection install process
+[WARNING]: The specified collections path '/Users/bthornto/github/ansible-navigator/collections' is not part of the configured Ansible collections paths '/Users/bthornto/.ansible/collections:/usr/share/ansible/collections'. The installed collection won't be
+picked up in an Ansible run.
+```
+
+
+### Expected Results
+
+warning messages indicates that if the installation directory is playbook adjacent and called collections it will be picked up by ansible while running the playbook
+
+### Actual Results
+
+```console
+received somewhat invalid warning message
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

@@ -1,0 +1,32 @@
+[ovirt_vm] Provide possibility to change Display keyboard-layout
+<!--- Verify first that your feature was not already discussed on GitHub -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Describe the new feature/improvement briefly below -->
+I would like to be able to set the keyboard layout for graphical console through ansible, as it's already possible via API and UI
+
+https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/rest_api_guide/types#types-display
+==> keyboard_layout
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ovirt_vm
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+In countries like Germany, I would like to setup the keyboard layout native to german. This is possible by API and UI, but not using ansible.
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+ovirt_vm:
+  graphical_console:
+    protocol:
+      - vnc
+    keyboard_layout: de_DE          
+```
+
+<!--- HINT: You can also paste gist.github.com links for larger files -->

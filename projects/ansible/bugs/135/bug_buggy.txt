@@ -1,0 +1,73 @@
+cron does not allow to remove a cron_file without user anymore
+##### SUMMARY
+Removing a cron_file is no longer possible since 2.8 without specifying the user parameter.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+cron
+
+##### ANSIBLE VERSION
+```paste below
+ansible 2.8.1
+  config file = /home/duck/OSPO/community-cage-infra-ansible/ansible.cfg
+  configured module search path = ['/home/duck/OSPO/community-cage-infra-ansible/library']
+  ansible python module location = /home/duck/.local/lib/python3.7/site-packages/ansible
+  executable location = /home/duck/.local/bin/ansible
+  python version = 3.7.3 (default, Apr  3 2019, 05:39:12) [GCC 8.3.0]
+```
+
+##### CONFIGURATION
+```paste below
+ANSIBLE_FORCE_COLOR(env: ANSIBLE_FORCE_COLOR) = True
+ANSIBLE_PIPELINING(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = True
+ANSIBLE_SSH_ARGS(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = -o ControlMaster=auto -o ControlPersist=30m
+CACHE_PLUGIN(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = jsonfile
+CACHE_PLUGIN_CONNECTION(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ./facts_cache
+CACHE_PLUGIN_TIMEOUT(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = 86400
+DEFAULT_ACTION_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/actio
+DEFAULT_CALLBACK_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/cal
+DEFAULT_CONNECTION_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/c
+DEFAULT_FILTER_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/filte
+DEFAULT_FORKS(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = 10
+DEFAULT_GATHERING(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = smart
+DEFAULT_HASH_BEHAVIOUR(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = merge
+DEFAULT_HOST_LIST(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/hosts.yml']
+DEFAULT_LOOKUP_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/looku
+DEFAULT_MANAGED_STR(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = Ansible managed
+DEFAULT_MODULE_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/library']
+DEFAULT_ROLES_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/roles']
+DEFAULT_STRATEGY_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/str
+DEFAULT_TIMEOUT(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = 40
+DEFAULT_VARS_PLUGIN_PATH(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = ['/home/duck/OSPO/community-cage-infra-ansible/plugins/vars']
+DEFAULT_VAULT_PASSWORD_FILE(env: ANSIBLE_VAULT_PASSWORD_FILE) = /home/duck/.ansible_vault/cage.txt
+ERROR_ON_MISSING_HANDLER(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = True
+PARAMIKO_HOST_KEY_AUTO_ADD(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = True
+PERSISTENT_CONNECT_TIMEOUT(/home/duck/OSPO/community-cage-infra-ansible/ansible.cfg) = 1800
+```
+
+##### OS / ENVIRONMENT
+Ansible runs on Debian unstable and the node is using Debian Stretch.
+
+##### STEPS TO REPRODUCE
+The following worked before 2.8 and now fails.
+
+```yaml
+- name: remove useless backup cron
+  cron:
+    cron_file: backup-postgresql-databases
+    state: absent
+```
+
+##### EXPECTED RESULTS
+
+There is no reason to request the user when deleting the contab file thus it should continue to work as before 2.8.
+
+I would dare to say a test is missing here.
+
+##### ACTUAL RESULTS
+
+```paste below
+fatal: [catton.osci.io]: FAILED! => {"changed": false, "msg": "missing parameter(s) required by 'cron_file': user"}
+```

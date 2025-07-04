@@ -1,0 +1,15 @@
+Discourage use of `package` module
+#### SUMMARY
+As detailed in https://github.com/ansible/ansible/issues/68134 `package` is only good in the simplest of cases. We should guide people towards the dedicated modules `apt`, `dnf`, etc.
+
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+package
+
+##### ANSIBLE VERSION
+```paste below
+2.10
+```

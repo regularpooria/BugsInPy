@@ -1,0 +1,71 @@
+'groups' feature of user builtin doesn't mention deleting groups
+### Summary
+
+I was surprised to after using Ansible to add some users to a group, that they had been removed from all other groups (crucially, including one used to grant them `sudo` rights!).
+
+
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+user_module
+
+### Ansible Version
+
+```console
+nsible [core 2.11.5]
+  config file = /redacted/git/devops-ansible/ansible.cfg
+  configured module search path = ['/home/mark/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.9/site-packages/ansible
+  ansible collection location = /home/mark/.ansible/collections:/usr/share/ansible/collections
+  executable location = /sbin/ansible
+  python version = 3.9.7 (default, Aug 31 2021, 13:28:12) [GCC 11.1.0]
+  jinja version = 3.0.1
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+N/A
+```
+
+
+### OS / Environment
+
+Arch Linux
+
+### Additional Information
+
+I re-read the docs for the `user` built-in and it only mentions that the user will be *added* to groups mentioned in the groups list. The docs currently fail to mention that they will be removed from all groups *not* in the groups array.
+
+I presume this behavior is as intended, but the docs should clarify that the user's non-primary groups will be set to exactly those in the list, any other pre-existing group memberships will be removed.
+
+Here's a sample playbook that illustrated the behavior:
+
+```yaml
+---
+- hosts: fave-server
+  become: true
+  become_user: root
+  tasks:
+    - name: "add users to some group"
+      loop:
+        - sue
+        - john
+      user:
+        name: "{{ item }}"
+        state: present
+        groups:
+          - some
+```
+
+Try having the users already exist with other group memberships and they will be removed and replace with only a `some` group membership. (I tested with Ansible 2.11.5). 
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

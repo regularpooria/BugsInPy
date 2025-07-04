@@ -1,0 +1,25 @@
+win_user_right module doesn't support none or 'null' as a data type
+##### SUMMARY
+I have a requirement to ensure that certain Windows users right polices are set to to none. 
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+win_user_right
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+The win_user_right module is the module that should be used in this case. However, win_user_right doesn't support this specific use case of setting a policy to 'null'. I believe the crux of the problem is when a policy is set to 'null' `$lsa_helper.EnumerateAccountsWithUserRight($name)` will fail to find the permission (i.e. policy). 
+
+I would suggest an enhancement that would support the following playbook.
+
+```yaml
+win_user_right:
+    name: SeDenyRemoteInteractiveLogonRight
+    action: none
+```
+
+Notice in the above playbook, I'm suggesting adding another action of type `none`. If this action were specified, then `users` shall not be required. Obviously, the TRY, CATCH block around `$lsa_helper.EnumerateAccountsWithUserRight($name)` would need to be adjusted to account for the failure to find the permission (i.e. name) specified.
+
+I might have time to get to this if no one else picks it up before I can.

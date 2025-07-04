@@ -1,0 +1,45 @@
+Please document `argument_spec`
+### Summary
+
+The [`validate_argument_spec` module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/validate_argument_spec_module.html) accepts the `argument_spec` argument.
+
+This is all the page states:
+> argument_spec : A dictionary like AnsibleModule argument_spec
+
+But I can't find the definition of `argument_spec` anywhere.
+
+It would be appreciated if it were documented. Thank you.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+validate_argument_spec
+
+### Ansible Version
+
+```console
+2.14.5
+```
+
+
+### Configuration
+
+```console
+n/a
+```
+
+
+### OS / Environment
+
+n/a
+
+### Additional Information
+
+It is not clear what goes into that argument. There are two examples, but presumable they are not comprehensive.
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

@@ -1,0 +1,37 @@
+unclear explanation of `firstmatch` option in the `lineinfile` module
+<!--- Verify first that your improvement is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+##### SUMMARY
+The current documentation has this explanation for the `firstmatch`
+parameter of the `lineinfile` action:
+
+```
+If set, insertafter and insertbefore find a first line has regular expression matches.
+```
+
+I have no idea what `firstmatch` does, based on the above line.
+
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+lineinfile
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.8.4
+  config file = None
+  configured module search path = [u'/home/user/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/user/.virtualenvs/elasticluster/local/lib/python2.7/site-packages/ansible
+  executable location = /home/user/.virtualenvs/elasticluster/bin/ansible
+  python version = 2.7.14 (default, Sep 23 2017, 22:06:14) [GCC 7.2.0]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+```

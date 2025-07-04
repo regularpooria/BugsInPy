@@ -1,0 +1,19 @@
+VMware: vmware_host_dns misses required parameter in examples
+##### SUMMARY
+As @k3x pointed out in #63374 the examples in `vmware_host_dns` miss a required parameter.
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+vmware_host_dns
+
+##### ANSIBLE VERSION
+```
+ansible 2.10.0.dev0
+  config file = None
+  configured module search path = [u'/home/mario/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/mario/rme/ansible/lib/ansible
+  executable location = /home/mario/rme/ansible/bin/ansible
+  python version = 2.7.16 (default, Oct 10 2019, 22:02:15) [GCC 8.3.0]
+```

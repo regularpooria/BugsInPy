@@ -1,0 +1,57 @@
+Update docs to use string values instead of ints
+##### SUMMARY
+
+The documentation for various modules uses bare int values, but these now print a warning message indicating they should be quoted string values. The warning message was already reported as #58347 and closed as not a bug. Since it appears bare int values are no longer acceptable (at least not without a warning), I think the documentation should be updated to avoid use of such values. Incidentally, the original reporter of #58347 broached that topic, but I think it was lost in the shuffle.
+
+##### ISSUE TYPE
+
+- Documentation Report
+
+##### COMPONENT NAME
+
+There are likely others, but the two modules I know that document behavior that will result in a warning message being presented are:
+
+- sysctl
+- ufw
+
+
+##### ANSIBLE VERSION
+
+```paste below
+ansible 2.8.3
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/nirvdrum/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.15+ (default, Nov 27 2018, 23:36:35) [GCC 7.3.0]
+```
+
+##### CONFIGURATION
+
+Default configuration. Nothing changed.
+
+##### OS / ENVIRONMENT
+
+Ubuntu 18.04.
+
+##### ADDITIONAL INFORMATION
+
+The first example from the Ansible sysctl module documentation looks like:
+
+```yaml
+# Set vm.swappiness to 5 in /etc/sysctl.conf
+- sysctl:
+    name: vm.swappiness
+    value: 5
+    state: present
+```
+
+Since this will result in a warning being printed out, that can be confusing for users. It's particularly confusing for anyone that happened to have used the example code with releases of Ansible that previously did not produce a warning. If this is the path going forward, however, I think we can clear things up quite a bit by quoting values in the documentation. E.g.,
+
+```yaml
+# Set vm.swappiness to 5 in /etc/sysctl.conf
+- sysctl:
+    name: vm.swappiness
+    value: '5'
+    state: present
+```

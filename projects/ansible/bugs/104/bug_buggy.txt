@@ -1,0 +1,148 @@
+Nxos privilage escalation not working properly
+##### SUMMARY
+I found another issue that is similar to the issue reported in https://github.com/ansible/ansible/issues/61568.
+
+In this case if I run the playbook described below I encounter the following issue:
+
+```
+TASK [nxos_become : run commands with become] ***********************************************************************************************************************************************************
+task path: /root/agents-ci/ansible/test/integration/targets/nxos_become/tests/cli/sanity.yaml:7
+<n3k.example.com> attempting to start connection
+<n3k.example.com> using connection plugin network_cli
+<n3k.example.com> found existing local domain socket, using it!
+<n3k.example.com> updating play_context for connection
+<n3k.example.com> 
+The full traceback is:
+Traceback (most recent call last):
+  File "/root/agents-ci/ansible/bin/ansible-connection", line 300, in main
+    conn.update_play_context(pc_data)
+  File "/root/agents-ci/ansible/lib/ansible/module_utils/connection.py", line 185, in __rpc__
+    raise ConnectionError(to_text(msg, errors='surrogate_then_replace'), code=code)
+ConnectionError: 'NoneType' object has no attribute 'endswith'
+
+fatal: [n3k-priv]: FAILED! => {
+    "msg": "'NoneType' object has no attribute 'endswith'"
+}
+
+
+```
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+nxos
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.10.0.dev0
+  config file = /root/agents-ci/ansible/test/integration/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /root/agents-ci/ansible/lib/ansible
+  executable location = /root/agents-ci/ansible/bin/ansible
+  python version = 2.7.12 (default, Dec  4 2017, 14:50:18) [GCC 5.4.0 20160609]
+
+```
+
+
+##### STEPS TO REPRODUCE
+Just like I describe in https://github.com/ansible/ansible/issues/61568, if I checkout the commit right before https://github.com/ansible/ansible/commit/7d3c4a88823846cbcea7c61de38658a6d63d4265 I don't see the problem.
+
+I decided to open a separate issue for this though because if I patch in the potential fix (https://github.com/ansible/ansible/pull/61570) I still see the issue.
+
+##### EXPECTED RESULTS
+Test should pass on all NXOS platforms.
+
+##### ACTUAL RESULTS
+Test fails with error message
+
+```
+Traceback (most recent call last):
+  File "/root/agents-ci/ansible/bin/ansible-connection", line 300, in main
+    conn.update_play_context(pc_data)
+  File "/root/agents-ci/ansible/lib/ansible/module_utils/connection.py", line 185, in __rpc__
+    raise ConnectionError(to_text(msg, errors='surrogate_then_replace'), code=code)
+ConnectionError: 'NoneType' object has no attribute 'endswith'
+```
+
+Here is the playbook that exposes the issue.
+
+Command to execute the playbook: `ansible-playbook -i ~/hosts nxos.yaml -vvvv`
+
+**nxos.yaml**
+```yaml
+---
+# This first play configures a new user called test_ansible and sets
+# the enable secret
+- name: Setup test user for role validation
+  hosts: nxos
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+    - set_fact: nxos_priv_host="{{ hostvars[inventory_hostname]["groups"]["nxos_privilage_user"][0] }}"
+    - set_fact: priv_password="{{ hostvars[nxos_priv_host]["ansible_ssh_pass"] }}"
+
+    - name: Enable Feature Privilege
+      nxos_config:
+        lines:
+          - feature privilege
+
+    - name: Configure user ansible_test with role priv-14
+      nxos_config:
+        lines:
+          - no username test_ansible
+          - "username test_ansible password {{ priv_password }} role priv-14"
+          - enable secret 0 cisco
+
+# This second play uses the nxos_become role to verify that ansible
+# can login as the test user created in the first play and then use
+# become to enable a higher privilage level
+- name: Verify privliage role escalation using become
+  hosts: nxos_privilage_user
+  gather_facts: no
+  connection: local
+
+  vars:
+    debug: false
+
+  roles:
+    - { role: nxos_become }
+
+# This third and final play is used to cleanup the test user
+- name: Cleanup test user
+  hosts: nxos
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+    - name: Remove user ansible_test
+      nxos_config:
+        lines:
+          - no username test_ansible
+          - no enable secret
+```
+
+**nxos_become role**
+Everything committed into the current `devel` role  but replace `targets/nxos_become/tests/cli/sanity.yaml` with:
+
+```yaml
+---
+- debug: msg="START connection={{ ansible_connection }}/sanity.yaml"
+- debug: msg="Using provider={{ connection.transport }}/sanity.yaml"
+  when: ansible_connection == "local"
+
+- block:
+  - name: run commands with become
+    nxos_command:
+      commands: 'show privilege'
+    become: yes
+    register: result
+
+  - assert:
+      that:
+        - "'Current privilege level: 15' in result['stdout'][0]"
+
+- debug: msg="END connection={{ ansible_connection }}/sanity.yaml"
+
+```

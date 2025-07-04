@@ -1,0 +1,95 @@
+Template action does not recursively evaluate variables any more
+<!--- Verify first that your improvement is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+
+Templates do not appear to be evaluated recursively anymore (see #4638).  I don't know when it changed.  I am using Ansible -devel or 2.8.  If it helps, here is the reproducer from issue #4638:
+
+> [playbook.yml]
+> 
+> ```
+> ---
+> - name: "test raw template output"
+>   hosts: localhost
+> 
+>   vars:
+>     myvar: "foo"
+> 
+>   tasks:
+>     - local_action: template src="mytemplate.j2" dest="/tmp/myoutput.txt"
+> 
+> ```
+>
+> [mytemplate.j2]
+>
+> ```
+> Test: Preserve curly braces, and NOT perform variable substitution:
+> 
+> First Attempt:
+> {% raw %}
+>   - { include: "{{ myvar }}" }
+> {% endraw %}
+> ```
+>
+> [/tmp/myoutput.txt]
+>
+> ```
+> Test: Preserve curly braces, and NOT perform variable substitution:
+> 
+> 
+> First Attempt:
+> 
+>   - { include: "foo" }
+> ```
+> 
+> NOTE: template output performs variable substitution even inside the {% raw %} block.
+
+and here is the output *I* got:
+
+```
+Test: Preserve curly braces, and NOT perform variable substitution:
+
+First Attempt:
+
+  - { include: "{{ myvar }}" }
+```
+
+At least, I really hope this is a documentation bug. I think the old behaviour was a bad idea.  I would not like Ansible to go back to it.
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the rst file, module, plugin, task or feature below, use your best guess if unsure -->
+template
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```
+ansible 2.9.0.dev0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/alan-sysop/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/alan-sysop/src/ansible/lib/ansible
+  executable location = /home/alan-sysop/src/ansible/bin/ansible
+  python version = 2.7.16 (default, Apr 30 2019, 15:54:43) [GCC 9.0.1 20190312 (Red Hat 9.0.1-0.10)]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+
+`ansible-config dump --only-changed` shows no output at all.
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. OS version, browser, etc. -->
+
+Fedora Workstation 30
+
+##### ADDITIONAL INFORMATION
+
+I'm hoping this is all ancient history now. If so, we can simply remove the sentence in question:
+
+> * Using raw/endraw in Jinja2 will not work as you expect because templates in Ansible are recursively evaluated.
+
+https://docs.ansible.com/ansible/latest/modules/template_module.html#notes

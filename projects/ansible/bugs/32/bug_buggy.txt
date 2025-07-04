@@ -1,0 +1,145 @@
+ansible.builtin.file: incorrect permissions being set when looping 
+### Summary
+
+Setting file permissions for a list of files like this
+```
+my_items:
+  - path: dir1
+    mode: 0770
+  - ... further entries ..
+```
+
+using `ansible.builtin.file` results in incorrect permissions. For details see steps to reproduce below. 
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+file
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.12.6]
+  config file = /home/yannik/projects/xxx/ansible.cfg
+  configured module search path = ['/home/yannik/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.10/site-packages/ansible
+  ansible collection location = /home/yannik/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.10.6 (main, Aug  2 2022, 00:00:00) [GCC 11.3.1 20220421 (Red Hat 11.3.1-2)]
+  jinja version = 3.0.1
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+ANSIBLE_NOCOWS(/home/yannik/projects/xxx/ansible.cfg) = True
+```
+
+
+### OS / Environment
+
+fedora 35
+
+### Steps to Reproduce
+
+Create a host_vars file with this:
+```yaml
+my_items:
+  - path: dir1
+    mode: 0770
+```
+
+and run the following playbook:
+```yaml (paste below)
+- file:
+    path: "/tmp/{{ item.path }}"
+    state: directory
+    mode: "{{ item.mode }}"
+  loop: "{{ my_items }}"
+```
+
+
+### Expected Results
+
+The resulting permissions of `/tmp/dir1` should be equal to the permissions being set when not using a loop:
+
+### Specifying `mode` directly in the playbook task
+```
+- file:
+    path: "/tmp/dir1"
+    state: directory
+    mode: 0770
+```
+**Result: permissions set to 0770**
+
+### Specifying `mode` using a variable
+`hosts_vars`: 
+```
+my_permissions_variable: 0770
+```
+playbook:
+```
+- file:
+    path: "/tmp/dir"
+    state: directory
+    mode: "{{ my_permissions_variable }}"
+```
+
+**Result: permissions set to 0770**
+
+
+### Actual Results
+
+```console
+File permissions are set to `0504` instead of `0770` when using a loop:
+
+$ ansible-playbook test.yml -v         
+Using /home/yannik/projects/xxx/ansible.cfg as config file
+
+PLAY [app0] *************************************************************************************************
+
+TASK [Gathering Facts] **************************************************************************************
+ok: [app0]
+
+TASK [file] *************************************************************************************************
+ok: [app0] => (item={'path': 'dir1', 'mode': 504}) => changed=false 
+  ansible_loop_var: item
+  gid: 0
+  group: root
+  item:
+    mode: 504
+    path: dir1
+  mode: '0504'
+  owner: root
+  path: /tmp/dir1
+  size: 4096
+  state: directory
+  uid: 0
+
+PLAY RECAP **************************************************************************************************
+app0                       : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+
+$ stat /tmp/dir1
+  File: /tmp/dir1
+  Size: 4096      	Blocks: 8          IO Block: 4096   directory
+Device: fe01h/65025d	Inode: 2126076     Links: 2
+Access: (0504/dr-x---r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2022-09-06 14:28:46.635247941 +0200
+Modify: 2022-09-06 14:28:46.635247941 +0200
+Change: 2022-09-06 14:28:46.635247941 +0200
+ Birth: 2022-09-06 14:28:46.635247941 +0200
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

@@ -1,0 +1,63 @@
+ovirt_vm: Unable to find template shared among multiple clusters in the same datacenter
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+Since commit df581eb ovirt_vm is unable to find a template shared among multiple clusters in the same datacenter. Moreover, the document says that `cluster` parameter is a parameter used to define where VMs will be created. Then it should not be used to filter a template search which is not related to VM storage.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ovirt_vm
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+2.8.2
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+In RHEVM:
+1. Create a cluster `cluster_a` and add a template `template_a` in this cluster
+2. Create a cluster `cluster_b`
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+
+- name: Provision machine
+  ovirt_vm:
+    ...
+    cluster: "cluster_b"
+    template: "template_a"
+    ...
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+The template should be found (Behaviour before commit df581eb)
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+It raises an error
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+Template with name 'template_a' and version 'None' in cluster 'cluster_b' was not found
+```

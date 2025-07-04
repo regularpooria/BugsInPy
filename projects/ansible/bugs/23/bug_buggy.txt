@@ -1,0 +1,99 @@
+systemd module result is different than calling systemctl to stop and disable
+### Summary
+
+when i use ansible systemd module, but the result is different between using systemd module and not using systemd module. 
+
+
+```
+ - name: using systemd module
+    systemd:
+      name: my.service
+      state: stopped
+      enabled: no
+```
+
+```
+- name: using just command stop
+  command: systemctl stop my.service
+
+- name: using just command disable
+  command: systemctl disable my.service
+```
+In Detail, my.service's killMode is process (KillMode=process), so if i stop my.service, another process in my.service cgroup  are not killed.  but when i use systemd module to stop and disable,  all process in my.service cgroup are killed 
+
+### Issue Type
+
+Bug Report
+
+### Component Name
+
+systemd
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.11.10] 
+  config file = /Users/kakao_ent/cloudms/git_ms/msg-deploy/ansible/ansible.cfg
+  configured module search path = ['/Users/kakao_ent/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/kakao_ent/cloudms/git_ms/msg-deploy/ansible/env/lib/python3.7/site-packages/ansible
+  ansible collection location = /Users/kakao_ent/.ansible/collections:/usr/share/ansible/collections
+  executable location = env/bin/ansible
+  python version = 3.7.8 (v3.7.8:4b47a5b6ba, Jun 27 2020, 04:47:50) [Clang 6.0 (clang-600.0.57)]
+  jinja version = 3.1.1
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+```
+
+
+### OS / Environment
+
+Ubuntu 18.04
+
+### Steps to Reproduce
+
+1. not working task
+```
+ - name: using systemd module
+    systemd:
+      name: my.service
+      state: stopped
+      enabled: no
+```
+
+2. working task
+```
+- name: using just command stop
+  command: systemctl stop my.service
+
+- name: using just command disable
+  command: systemctl disable my.service
+```
+
+and the service file attribute have to add like this
+
+`KillMode=process`
+
+
+
+### Expected Results
+
+same as summary
+
+### Actual Results
+
+```console
+same as summary
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

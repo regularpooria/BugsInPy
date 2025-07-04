@@ -1,0 +1,122 @@
+Systemd module with "state: reloaded" restarts service if service is stopped
+### Summary
+
+When reloading a service via Ansible systemd module, if the service is stopped, Ansible restarts it. 
+
+If I try to manually reload a service that is stopped I get this result : 
+
+```
+root@testvm:~# systemctl reload haproxy.service
+haproxy.service is not active, cannot reload.
+```
+
+But when I reload a stopped service via Ansible, it is restarted. 
+
+### Issue Type
+
+~Bug Report~
+Documentation Report
+
+### Component Name
+
+systemd
+
+### Ansible Version
+
+```console
+$ ansible --version
+
+ansible [core 2.14.6]
+  config file = None
+  configured module search path = ['/home/testuser/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/testuser/scripts/venvs/ansible_latest/lib/python3.9/site-packages/ansible
+  ansible collection location = /home/testuser/.ansible/collections:/usr/share/ansible/collections
+  executable location = /home/testuser/scripts/venvs/ansible_latest/bin/ansible
+  python version = 3.9.2 (default, Feb 28 2021, 17:03:44) [GCC 10.2.1 20210110] (/home/testuser/scripts/venvs/ansible_latest/bin/python3)
+  jinja version = 3.1.2
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+
+CONFIG_FILE() = None
+```
+
+
+### OS / Environment
+
+Debian 11 (bullseye)
+Ansible installed via pip3 
+
+### Steps to Reproduce
+
+- On a test Debian 11 machine, install haproxy and disable it : 
+```
+apt update
+apt install haproxy
+systemctl stop haproxy
+```
+
+- Try to reload the service manually, it should return an error with a RC of 1 : 
+
+```
+systemctl reload haproxy.service
+haproxy.service is not active, cannot reload.
+
+echo $?
+1
+```
+
+- Reload the service via Ansible, it returns a "changed" result :
+
+```
+- name: Reload HAProxy test 
+  hosts: testvm
+  tasks: 
+    - name: Reload HAProxy
+      systemd:
+        name: haproxy.service
+        state: reloaded
+```
+
+- Check the service state on the test vm, the service is started : 
+
+```
+systemctl status haproxy.service 
+● haproxy.service - HAProxy Load Balancer
+     Loaded: loaded (/lib/systemd/system/haproxy.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2023-05-26 14:26:45 CEST; 9s ago
+       Docs: man:haproxy(1)
+             file:/usr/share/doc/haproxy/configuration.txt.gz
+    Process: 325727 ExecStartPre=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS (code=exited, status=0/SUCCESS)
+   Main PID: 325729 (haproxy)
+      Tasks: 2 (limit: 2275)
+     Memory: 15.6M
+        CPU: 71ms
+     CGroup: /system.slice/haproxy.service
+             ├─325729 /usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid -S /run/haproxy-master.sock
+             └─325731 /usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid -S /run/haproxy-master.sock
+```
+
+
+
+
+### Expected Results
+
+The module should either ignore the reload if the service is not currently running (best option) or fail with an error similar to "haproxy.service is not active, cannot reload."
+
+### Actual Results
+
+```console
+The service is restarted.
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

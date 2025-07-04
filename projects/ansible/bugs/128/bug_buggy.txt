@@ -1,0 +1,80 @@
+Docs for win_firewall_rule (protocol is mandatory if localport is specified)
+##### SUMMARY
+win_firewall_rule docs do not specify that protocol is mandatory when specifying a port. This is not obvious, in my case i wanted a rule to allow both TCP and UDP.
+
+MSFT docs for New-NetFirewallRule specifies:
+"If the Protocol parameter value is TCP or UDP, then the acceptable values for this parameter are- etc.." something similar in the ansible docs would make sense
+
+https://github.com/ansible/ansible/issues/31576 makes clear a change to docs would be helpful.
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+win_firewall_rule
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```
+ansible 2.8.2
+  config file = /Users/redacted/projects/projectname/ansible/ansible.cfg
+  configured module search path = ['/Users/redacted/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/Cellar/ansible/2.8.2/libexec/lib/python3.7/site-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.7.4 (default, Jul  9 2019, 18:13:23) [Clang 10.0.1 (clang-1001.0.46.4)]
+```
+
+##### CONFIGURATION
+Not relevant
+
+##### OS / ENVIRONMENT
+Server 2019 Core
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```
+- name: New firewall rule allow HTTPS
+  win_firewall_rule:
+    name: name (withBrackets)
+    description: description (withBrackets)
+    localport: 443
+    action: allow
+    direction: in
+    enabled: yes
+    state: present
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+Firewall rule created for both UDP and TCP
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```
+task path: /redacted/file.yml:27
+Using module file /usr/local/Cellar/ansible/2.8.2/libexec/lib/python3.7/site-packages/ansible/modules/windows/win_firewall_rule.ps1
+Pipelining is enabled.
+<redacted> ESTABLISH WINRM CONNECTION FOR USER: redacted on PORT redacted TO redacted
+EXEC (via pipeline wrapper)
+The full traceback is:
+Value does not fall within the expected range.
+At line:162 char:59
++ ... port -and $localport -ne "any") { $new_rule.LocalPorts = $localport }
++                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (:) [], ArgumentException
+    + FullyQualifiedErrorId : System.ArgumentException
+ 
+
+fatal: [hostname1]: FAILED! => {
+    "changed": false,
+    "msg": "Value does not fall within the expected range."
+}
+```

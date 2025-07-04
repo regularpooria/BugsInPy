@@ -1,0 +1,147 @@
+ansible_ssh_retries parameter does not work for delegated connection (ansible ver 2.9.23)
+### Summary
+
+When I try to configure ssh retry parameter through vars in a delegated task, it does not behave correctly. Default retry parameter is 3 which works as expected when not configured, but when I add ansible_ssh_retries with any number value, no chance happens.
+
+
+### Issue Type
+
+Documention Report
+
+### Component Name
+
+ssh
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible 2.9.23
+  config file = /examples/ansible.cfg
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /opt/venv/lib/python3.6/site-packages/ansible
+  executable location = /opt/venv/bin/ansible
+  python version = 3.6.8 (default, Sep  9 2021, 07:49:02) [GCC 8.5.0 20210514 (Red Hat 8.5.0-3)]
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+ANSIBLE_SSH_RETRIES(/examples/ansible.cfg) = 10
+```
+
+
+### OS / Environment
+
+$ cat /etc/redhat-release 
+Red Hat Enterprise Linux release 8.4 (Ootpa)
+
+### Steps to Reproduce
+
+ansible.cfg:
+
+```
+[ssh_connection]
+retries = 10
+```
+
+retry_test.yml:
+
+```
+- name: "Create a file"
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - name: "Create a file if not present"
+      delegate_to: <host_ip>
+      vars:
+        ansible_user:  <user>
+        ansible_ssh_pass: <pw>
+        ansible_become_method: su
+        ansible_become: yes
+        ansible_become_password: <pw>
+        ansible_ssh_retries: 10
+        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+      file:
+        path: "/home/<user>/randomfile.txt"
+        state: touch
+
+```
+
+Run following cmd while delegated host ssh connection limit defined by /etc/security/limits.conf is exceeded:
+
+`ansible-playbook -i hosts.yml retry_test.yml -vvv`
+
+
+
+### Expected Results
+
+When ansible_ssh_retries added to vars with a number value X, ssh should try up to X attempts to connect for delegated_hosts.
+
+### Actual Results
+
+```console
+[root@d94f53b2a6bb:]$ ansible-playbook -i hosts.yml retry_test.yml -vvv
+ansible-playbook 2.9.23
+  config file = /examples/ansible.cfg
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /opt/venv/lib/python3.6/site-packages/ansible
+  executable location = /opt/venv/bin/ansible-playbook
+  python version = 3.6.8 (default, Sep  9 2021, 07:49:02) [GCC 8.5.0 20210514 (Red Hat 8.5.0-3)]
+Using /examples/ansible.cfg as config file
+host_list declined parsing /examples/hosts.yml as it did not pass its verify_file() method
+script declined parsing /examples/hosts.yml as it did not pass its verify_file() method
+Parsed /examples/hosts.yml inventory source with yaml plugin
+Skipping callback 'actionable', as we already have a stdout callback.
+Skipping callback 'counter_enabled', as we already have a stdout callback.
+Skipping callback 'debug', as we already have a stdout callback.
+Skipping callback 'dense', as we already have a stdout callback.
+Skipping callback 'dense', as we already have a stdout callback.
+Skipping callback 'full_skip', as we already have a stdout callback.
+Skipping callback 'json', as we already have a stdout callback.
+Skipping callback 'minimal', as we already have a stdout callback.
+Skipping callback 'null', as we already have a stdout callback.
+Skipping callback 'oneline', as we already have a stdout callback.
+Skipping callback 'selective', as we already have a stdout callback.
+Skipping callback 'skippy', as we already have a stdout callback.
+Skipping callback 'stderr', as we already have a stdout callback.
+Skipping callback 'unixy', as we already have a stdout callback.
+Skipping callback 'yaml', as we already have a stdout callback.
+
+PLAYBOOK: retry_test.yml ****************************************************************************************************************************************************************
+1 plays in retry_test.yml
+
+PLAY [Create a file] ********************************************************************************************************************************************************************
+META: ran handlers
+
+TASK [Create a file if not present] *****************************************************************************************************************************************************
+task path: /examples/retry_test.yml:6
+<<host_ip>> ESTABLISH SSH CONNECTION FOR USER: <host_user>
+<<host_ip>> SSH: EXEC sshpass -d10 ssh -C -o ControlMaster=auto -o ControlPersist=60s -o 'User="<host_user>"' -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlPath=/root/.ansible/cp/fbfe67135b <host_ip> '/bin/sh -c '"'"'echo ~<host_user> && sleep 0'"'"''
+<<host_ip>> (254, b"\nAuthorized users only. All activity may be monitored and reported.\n\nToo many logins for '<host_user>'.\n", b"Warning: Permanently added '<host_ip>' (ECDSA) to the list of known hosts.\r\n\nAuthorized users only. All activity may be monitored and reported.\n\n")
+<<host_ip>> Failed to connect to the host via ssh: Warning: Permanently added '<host_ip>' (ECDSA) to the list of known hosts.
+
+Authorized users only. All activity may be monitored and reported.
+<<host_ip>> ESTABLISH SSH CONNECTION FOR USER: <host_user>
+<<host_ip>> SSH: EXEC sshpass -d10 ssh -C -o ControlMaster=auto -o ControlPersist=60s -o 'User="<host_user>"' -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlPath=/root/.ansible/cp/fbfe67135b <host_ip> '/bin/sh -c '"'"'( umask 77 && mkdir -p "` echo Too many logins for '"'"'"'"'"'"'"'"'<host_user>'"'"'"'"'"'"'"'"'./.ansible/tmp `"&& mkdir "` echo Too many logins for '"'"'"'"'"'"'"'"'<host_user>'"'"'"'"'"'"'"'"'./.ansible/tmp/ansible-tmp-1646032840.9470909-227-194794013968900 `" && echo ansible-tmp-1646032840.9470909-227-194794013968900="` echo Too many logins for '"'"'"'"'"'"'"'"'<host_user>'"'"'"'"'"'"'"'"'./.ansible/tmp/ansible-tmp-1646032840.9470909-227-194794013968900 `" ) && sleep 0'"'"''
+<<host_ip>> (254, b'', b'')
+<<host_ip>> Failed to connect to the host via ssh: 
+fatal: [localhost]: UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to create temporary directory.In some cases, you may have been able to authenticate and did not have permissions on the target directory. Consider changing the remote tmp path in ansible.cfg to a path rooted in \"/tmp\", for more error information use -vvv. Failed command was: ( umask 77 && mkdir -p \"` echo Too many logins for '<host_user>'./.ansible/tmp `\"&& mkdir \"` echo Too many logins for '<host_user>'./.ansible/tmp/ansible-tmp-1646032840.9470909-227-194794013968900 `\" && echo ansible-tmp-1646032840.9470909-227-194794013968900=\"` echo Too many logins for '<host_user>'./.ansible/tmp/ansible-tmp-1646032840.9470909-227-194794013968900 `\" ), exited with result 254",
+    "unreachable": true
+}
+
+NO MORE HOSTS LEFT **********************************************************************************************************************************************************************
+
+PLAY RECAP ******************************************************************************************************************************************************************************
+localhost                  : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

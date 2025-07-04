@@ -1,0 +1,43 @@
+Add checksum check for apt_key example for improved security
+### Summary
+
+Based on feedback from a mastodon ansible user:
+
+The first example of https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_key_module.html#examples (the apt_key replacement) shows how a pgp key is downloaded and declared as trusted for a repository, but there is no validation of the key going on. Maybe the get_url task could include the checksum argument, to show that (and how) the key should be validated against a known good. Further down there is also an example of apt_key downloading a key without the id argument specified.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+apt_key
+
+### Ansible Version
+
+```console
+$ ansible --version
+2.15
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+none
+```
+
+
+### OS / Environment
+
+none
+
+### Additional Information
+
+The examples all use https URLs, so they do not expose you to just arbitrary MITM; but many projects use untrusted public mirrors to distribute packages and public keys, and instead post the fingerprint of the public key on the non-mirrored first-party website. You are then supposed to verify the downloaded key against that fingerprint (unfortunately a manual action since they post a PGP fingerprint and not a checksum), in order to protect against rogue mirror operators (AFAIK).
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

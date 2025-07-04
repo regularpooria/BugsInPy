@@ -1,0 +1,47 @@
+ansible/builtin/dnf_module: Parameters document "list" but no examples given
+### Summary
+
+in ansible/builtin/dnf_module in the parameter section the parameter `list` is documented with
+
+>  "Various (non-idempotent) commands for usage with /usr/bin/ansible and not playbooks. See examples." 
+
+but there are no examples given for the usage of this parameter
+
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+collections/ansible/builtin/dnf_module
+
+### Ansible Version
+
+```console
+this is a documentation bug in the recent online version and its regardless of my running ansible version. 
+See: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html#ansible-collections-ansible-builtin-dnf-module
+```
+
+
+### Configuration
+
+```console
+this is a documentation bug in the recent online version and its regardless of my running ansible version. 
+See: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html#ansible-collections-ansible-builtin-dnf-module
+```
+
+
+### OS / Environment
+
+this is a documentation bug in the recent online version and its regardless of my running OS Environment. 
+See: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html#ansible-collections-ansible-builtin-dnf-module
+
+
+### Additional Information
+
+Providing Examples, on how to sensibly use the `list` parameter of the dnf module, would make it usable. Otherwise there will be an illogical reference from the parameterlist "See examples" when there are no examples explaining the usage.
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

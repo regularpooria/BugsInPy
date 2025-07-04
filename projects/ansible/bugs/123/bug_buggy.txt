@@ -1,0 +1,12 @@
+CNOS modules showing as "supported" when it shouldn't
+##### COMPONENT NAME
+cnos_linkagg
+
+https://docs.ansible.com/ansible/devel/modules/network_maintained.html#network-supported
+
+Specifically:
+https://docs.ansible.com/ansible/latest/modules/cnos_linkagg_module.html#cnos-linkagg-module
+
+should be modified to be community supported (not fully supported).
+
+Thanks!

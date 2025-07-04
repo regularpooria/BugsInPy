@@ -1,0 +1,82 @@
+ovirt_network fails creating network when external_provider is set.
+overit_network fails when trying to create a network that uses an external provider.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+module ovirt_network
+
+
+##### ANSIBLE VERSION
+```
+ansible 2.9.1
+  config file = /Users/krist/Work/INFRA/Bern/PlopslandRHEV/ansible.cfg
+  configured module search path = ['/Users/krist/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/Cellar/ansible/2.9.1/libexec/lib/python3.7/site-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.7.5 (default, Nov  1 2019, 02:16:23) [Clang 11.0.0 (clang-1100.0.33.8)]##### CONFIGURATION
+```
+##### OS / ENVIRONMENT
+
+MacOSX 10.15
+
+##### STEPS TO REPRODUCE
+Consider the following playbook:
+
+```
+- name: prepare the RHEV cluster 
+  hosts: localhost
+
+
+  tasks:
+
+  - block:
+      - name: Obtain SSO Token
+        ovirt_auth:
+          url: "{{ ovirt_api }}"
+          username: admin@internal
+          ca_file: files/ca.pem
+          password: "{{ ovirt_password }}"
+    
+      - name: Create private networks
+        ovirt_network:
+          auth: "{{ ovirt_auth }}"
+          data_center: Default
+          name: boot
+          vm_network: true
+          external_provider: ovirt-provider-ovn
+          state: present
+
+    always:
+      - name: Always revoke the SSO token
+        ovirt_auth:
+          state: absent
+          ovirt_auth: "{{ ovirt_auth }}"
+```
+
+##### EXPECTED RESULTS
+
+A network "boot" is created, using the external provider ovirt-provider-ovn
+
+##### ACTUAL RESULTS
+
+An error is thrown: 
+
+```
+TASK [Create private networks] *********************************************************************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: Exception: Entity 'boot' was not found.
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "Entity 'boot' was not found."}
+```
+
+Looking at hte source it appears then when you define a external provider that was is in fact attempted is to import a network form that external provider, not crearte one:
+
+```
+  if module.params.get('external_provider'):
+                ret = networks_module.import_external_network()
+            else:
+                ret = networks_module.create(search_params=search_params)
+```
+
+That is not what you would expect, not according to the docs anyway.
+

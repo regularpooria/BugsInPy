@@ -1,0 +1,66 @@
+iam_user module fails to remove an AWS user
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+`iam_user` module fails to remove am AWS user if it has: a group membership, console password (login profile), access keys, MFA device, etc..
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+iam_user
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.8.2
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/agustin/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = .../venv/lib/python3.5/site-packages/ansible
+  executable location =.../venv/bin/ansible
+  python version = 3.5.7 (default, Mar 30 2019, 01:05:18) [GCC 7.3.0]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+Create an AWS user `test` with password or access keys
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- hosts: localhost
+  tasks:
+    - iam_user:
+        name: test
+        state: absent
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+User's state = absent
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+TASK [iam_user] **************************************************************************************************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: botocore.errorfactory.DeleteConflictException: An error occurred (DeleteConflict) when calling the DeleteUser operation: Cannot delete entity, must delete login profile first.
+fatal: [localhost]: FAILED! => {"changed": false, "error": {"code": "DeleteConflict", "message": "Cannot delete entity, must delete login profile first.", "type": "Sender"}, "msg": "Unable to delete user test: An error occurred (DeleteConflict) when calling the DeleteUser operation: Cannot delete entity, must delete login profile first.", "response_metadata": {"http_headers": {"content-length": "300", "content-type": "text/xml", "date": "Sun, 14 Jul 2019 18:34:25 GMT", "x-amzn-requestid": "01da0109-a666-11e9-adeb-83c56b62b76d"}, "http_status_code": 409, "request_id": "01da0109-a666-11e9-adeb-83c56b62b76d", "retry_attempts": 0}}
+
+```

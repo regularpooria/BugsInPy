@@ -1,0 +1,122 @@
+Ansible.ModuleUtils.WebRequest clears authorization header on redirects
+##### SUMMARY
+`win_get_url` clears the authorization header on redirections
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+win_get_url
+
+##### ANSIBLE VERSION
+```
+ansible 2.9.6
+  config file = None
+  configured module search path = ['/Users/.../.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/Cellar/ansible/2.9.6_1/libexec/lib/python3.8/site-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.8.2 (default, Mar 11 2020, 00:28:52) [Clang 11.0.0 (clang-1100.0.33.17)]
+```
+
+##### CONFIGURATION
+```
+DEFAULT_STDOUT_CALLBACK(env: ANSIBLE_STDOUT_CALLBACK) = debug
+```
+
+##### OS / ENVIRONMENT
+Host: Mac OS 10.14.6
+Target host: Windows 2012 R2
+
+##### STEPS TO REPRODUCE
+**Use case**: Using `win_get_url` on the target host to download a file from a repository. Basic authentication is used on the repository, but it also uses redirection.
+
+1. `win_get_url` makes the inititial request, passing the correct authorization header. 
+2. The repository responds with a 302 redirect and the redirect location
+3. The redirect url is followed by the underlying framework, but the authorization header is not passed through.
+
+When using `get_url`, the redirect is followed and the authorization is passed through the redirect.
+
+This behaviour is by design in HttpWebRequest. See note at https://docs.microsoft.com/en-us/dotnet/api/system.net.httpwebrequest.allowautoredirect?view=netframework-4.8
+
+> The Authorization header is cleared on auto-redirects and HttpWebRequest automatically tries to re-authenticate to the redirected location. In practice, this means that an application can't put custom authentication information into the Authorization header if it is possible to encounter redirection. Instead, the application must implement and register a custom authentication module
+
+Though this behaviour is by design in the .NET Framework, the behaviour of `win_get_url` differs from `get_url`.
+
+Example use:
+```yaml
+win_get_url: # compare with get_url
+    url: https://example.com/redirectTo/1
+    dest: 'C:\temp\somefile.exe'
+    url_username: some_user
+    url_password: some_pass
+    force_basic_auth: true
+```
+
+##### EXPECTED RESULTS
+Same behavour as `get_url`: Redirects are followed, and authorization header is passed in redirect request. File is downloaded from the url. 
+
+I suspect clearing authorization headers is a good idea as the default behavior of both ansible modules (`get_url` and `win_get_url`). This is probably for security reasons where the redirect
+is to a malicious site. However, it would be better if:
+1. The difference in `win_get_url` was explicitly documented (good)
+2. The behaviour was consistent between `get_url` and `win_get_url` (better)
+3. Module could be extended to choose if the auth header should be passed on when redirecting to the same host (or some safe url list) (best)
+
+
+##### ACTUAL RESULTS
+
+Output from sample run:
+```
+The full traceback is:
+The remote server returned an error: (401) Unauthorized.
+At line:427 char:13
++             $web_response = $Request.GetResponse()
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], WebException
+    + FullyQualifiedErrorId : WebException
+
+ScriptStackTrace:
+at Invoke-WithWebRequest, <No file>: line 427
+at Invoke-DownloadFile, <No file>: line 194
+at <ScriptBlock>, <No file>: line 243
+fatal: [54.206.58.45]: FAILED! => {
+    "changed": false,
+    "dest": "C:\\temp\\somefile.exe",
+    "elapsed": 0.062484599999999994,
+    "invocation": {
+        "module_args": {
+            "checksum": null,
+            "checksum_algorithm": "sha1",
+            "checksum_url": null,
+            "client_cert": null,
+            "client_cert_password": null,
+            "dest": "C:\\temp\\somefile.exe",
+            "follow_redirects": "safe",
+            "force": true,
+            "force_basic_auth": true,
+            "headers": {
+                "Authorization": "Basic eWVhaDpyaWdodAo="
+            },
+            "http_agent": "ansible-httpget",
+            "maximum_redirection": 50,
+            "method": null,
+            "proxy_password": null,
+            "proxy_url": null,
+            "proxy_use_default_credential": false,
+            "proxy_username": null,
+            "timeout": 30,
+            "url": "https://example.com/redirectTo/1",
+            "url_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "url_username": "some_user",
+            "use_default_credential": false,
+            "use_proxy": true,
+            "validate_certs": true
+        }
+    },
+    "status_code": 401,
+    "url": "https://example.com/redirectTo/1"
+}
+
+MSG:
+
+Error downloading 'https://example.com/redirectTo/1' to 'C:\temp\somefile.exe': The remote server returned an error: (401) Unauthorized.
+```

@@ -1,0 +1,46 @@
+Folder support for grafana_dashboard
+##### SUMMARY
+
+When creating a dashboard, I'd like to assign it to a folder in Grafana.
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+
+`grafana_dashboard`
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+
+Folders in Grafana are used for ACL etc.. When no folder is referenced, the dashboard ends up in the default folder (and can't be moved as it's managed outside of Grafana).
+
+Here's the API related to creating/updating dashboards:
+https://grafana.com/docs/http_api/dashboard/
+
+The relevant bit is `folderId`.
+
+For context, here's the folder API (probably a concern for a different module — `grafana_folder`):
+https://grafana.com/docs/http_api/folder/
+
+I'd propose something like this and then map `folder_id` to `folderId`. The default is a value of `0`. And then dashboards end up in "General".
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Import Grafana dashboard
+      grafana_dashboard:
+        grafana_url: http://localhost:3000
+        grafana_api_key: "{{ grafana_api_key }}"
+        state: present
+        folder_id: 0
+        message: Updated by ansible
+        overwrite: yes
+        path: /path/to/mydashboard.json
+```
+
+As an additional motivation, I'm a user of a Grafana role. They are planning to deprecate their dashboard management in favour of this module.
+
+Related: https://github.com/cloudalchemy/ansible-grafana/issues/174

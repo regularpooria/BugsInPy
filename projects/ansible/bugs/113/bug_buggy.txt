@@ -1,0 +1,94 @@
+os_loadbalancer: absent doesn't work
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+OpenStack load balancer deletion failed:
+
+```
+TASK [delete lb] ***************************************************************************************************************************************************************************************************************************
+fatal: [localhost]: FAILED! => {
+    "changed": false,
+    "extra_data": null
+}
+
+MSG:
+
+No LoadBalancer found for 730c776d-d6ac-448c-95f8-4727491b297d: Client Error for url: http://192.168.206.8/load-balancer/v2.0/lbaas/loadbalancers/730c776d-d6ac-448c-95f8-4727491b297d, Not Found
+```
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+os_loadbalancer
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.0.dev0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/lingxiankong/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/lingxiankong/code/github/ansible/lib/ansible
+  executable location = /home/lingxiankong/code/github/ansible/bin/ansible
+  python version = 2.7.12 (default, Nov 12 2018, 14:36:49) [GCC 5.4.0 20160609]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+DEFAULT_STDOUT_CALLBACK(/etc/ansible/ansible.cfg) = debug
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+```
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 16.04.5 LTS
+Release:        16.04
+Codename:       xenial
+```
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: test delete lb
+  connection: local
+  hosts: localhost
+  tasks:
+    - name: delete lb
+      os_loadbalancer:
+        name: lingxiank8s-lb
+        state: absent
+        wait: yes
+        timeout: 600
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+the load balancer is deleted successfully.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+TASK [delete lb] ***************************************************************************************************************************************************************************************************************************
+fatal: [localhost]: FAILED! => {
+    "changed": false,
+    "extra_data": null
+}
+
+MSG:
+
+No LoadBalancer found for 730c776d-d6ac-448c-95f8-4727491b297d: Client Error for url: http://192.168.206.8/load-balancer/v2.0/lbaas/loadbalancers/730c776d-d6ac-448c-95f8-4727491b297d, Not Found
+```

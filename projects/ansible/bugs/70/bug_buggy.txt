@@ -1,0 +1,41 @@
+Support specify disks in ovirt_snapshot module
+<!--- Verify first that your feature was not already discussed on GitHub -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Describe the new feature/improvement briefly below -->
+Currently it's not possible to specify disks to be included in the snapshot, always all disks are used.
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ovirt_snapshot
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+Could look like:
+```yaml
+ovirt_snapshot:
+  description: My snap
+  vm_name: myvm
+  disks:
+    - id: 123
+    - id: 456
+```
+
+or 
+
+```yaml
+ovirt_snapshot:
+  description: My snap
+  vm_name: myvm
+  disks:
+    - name: myvm_disk_db
+    - name: myvm_disk_store
+```
+
+<!--- HINT: You can also paste gist.github.com links for larger files -->

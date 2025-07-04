@@ -1,0 +1,26 @@
+gitlab_hook module doesn't have parameter "trigger by comment"
+<!--- Verify first that your feature was not already discussed on GitHub -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Describe the new feature/improvement briefly below -->
+In gitlab_hook module doesn't have parameter "Comment" which is necessary for my DevOps flow and generally very useful for triggering a job. Without this option, I and a lot of people cannot use this module fully. 
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+https://docs.ansible.com/ansible/latest/modules/gitlab_hook_module.html
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+1. I use the newest version of ansible.
+2. It's about this option in gitlab:
+[![comments.png](https://i.postimg.cc/C5tkJdJ7/comments.png)](https://postimg.cc/sGYMgjkG)
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+
+```
+
+<!--- HINT: You can also paste gist.github.com links for larger files -->

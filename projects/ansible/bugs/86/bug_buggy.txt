@@ -1,0 +1,53 @@
+kinesis_stream Wait Calls DescribeStream In a Loop Without Pause
+##### SUMMARY
+If you use kinesis_stream with wait set to yes, ansible will call the DescribeStream API call in a loop with no sleep in between calls. I've seen up to 95 calls per second. You will most likely receive rate exceeded errors which are masked by ansible but can be seen in your CloudTrail logs.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+kinesis_stream
+
+##### ANSIBLE VERSION
+```
+ansible 2.8.6
+config file = /home/ansible/ansible.cfg
+configured module search path = [u'/home/ansible/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+executable location = /usr/bin/ansible
+python version = 2.7.15+ (default, Oct  7 2019, 17:39:04) [GCC 7.4.0]
+```
+
+##### CONFIGURATION
+```
+COMMAND_WARNINGS(/home/ansible/ansible.cfg) = False
+DEFAULT_CALLBACK_WHITELIST(/home/ansible/ansible.cfg) = [u'profile_roles', u'timer', u'log_plays']
+DEFAULT_LOG_PATH(/home/ansible/ansible.cfg) = /var/log/ansible/ansible.log
+DEFAULT_ROLES_PATH(/home/ansible/ansible.cfg) = [u'/etc/ansible/roles', u'/etc/ansible/xxx']
+DEFAULT_STDOUT_CALLBACK(/home/ansible/ansible.cfg) = default
+HOST_KEY_CHECKING(/home/ansible/ansible.cfg) = False
+RETRY_FILES_ENABLED(/home/ansible/ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+Ubuntu 18.04.3 LTS
+
+##### STEPS TO REPRODUCE
+Create a kinesis_stream with wait set to yes. Run it and look at your CloudTrail logs for Kinesis DescribeStream calls.
+
+```
+  kinesis_stream:
+    aws_access_key: "xxx"
+    aws_secret_key: "xxx"
+    region: "xxx"
+    name: "my_stream"
+    shards: "1"
+    wait: yes
+    wait_timeout: 600
+```
+
+##### EXPECTED RESULTS
+DescribeStream should only be called once per 5 seconds.
+
+##### ACTUAL RESULTS
+DescribeStream is called dozens of times per second.

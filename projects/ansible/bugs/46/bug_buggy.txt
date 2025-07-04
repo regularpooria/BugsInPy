@@ -1,0 +1,30 @@
+ansible.builtin.password doc does not list possible values for chars parameter
+<!--- Verify first that your improvement is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below, add suggestions to wording or structure -->
+
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/password_lookup.html :
+
+> Define comma separated list of names that compose a custom character set in the generated passwords.
+> They can be either parts of Python's string module attributes (ascii_letters,digits, etc) or are used literally ( :, -).
+
+I suggest to list all possible names or at least add a link to python string module documentation: https://docs.python.org/3/library/string.html
+
+Now you have to search for the relevant python documentation yourself.
+
+<!--- HINT: Did you know the documentation has an "Edit on GitHub" link on every page ? -->
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the rst file, module, plugin, task or feature below, use your best guess if unsure -->
+ansible.builtin.password
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how this improves the documentation, e.g. before/after situation or screenshots -->
+
+<!--- HINT: You can paste gist.github.com links for larger files -->

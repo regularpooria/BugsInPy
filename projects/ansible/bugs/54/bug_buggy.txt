@@ -1,0 +1,27 @@
+win_dns_record: Add documentation for multi-valued entries
+##### SUMMARY
+#67628 exposed an area in which `win_dns_record` could be improved, as far as _documenting_ how to add multiple values to a given `A` (or other) record type.
+
+Although the `value` attribute is clearly documented as taking a _list_, **none of the examples actually show that** --- leading to the mistaken impression in the case of #67628 that there was no existing way to do that. A few quick examples would go a long way.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+`win_dns_record`
+
+##### ANSIBLE VERSION
+Affects all versions that have this module (ie 2.8 and up)
+
+##### CONFIGURATION
+n/a
+
+##### OS / ENVIRONMENT
+Windows 2012+ targets only
+
+##### STEPS TO REPRODUCE
+n/a
+
+##### Musings
+
+Should give examples for both `A` and `MX` records, since those are (probably) the most common multi-valued record types.

@@ -1,0 +1,58 @@
+Cannot show uri test docs
+### Summary
+
+Running `ansible-doc -t test uri` produces
+```
+ERROR! test ansible.builtin.uri missing documentation (or could not parse documentation): No documentation availalbe for ansible.builtin.uri (/path/to/ansible/lib/ansible/plugins/test/uri.py)
+```
+It tries to look at `uri.py` instead of `uri.yml` in the same directory.
+
+Listing the tests shows that filter correctly, `--metadata-dump` does not.
+
+This happens both with #78700 and without #78700. #77737 also demonstrates this.
+
+### Issue Type
+
+Bug Report
+
+### Component Name
+
+ansible-doc
+
+### Ansible Version
+
+```console
+devel branch
+#78700
+```
+
+
+### Configuration
+
+```console
+-
+```
+
+
+### OS / Environment
+
+-
+
+### Steps to Reproduce
+
+-
+
+### Expected Results
+
+-
+
+### Actual Results
+
+```console
+-
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

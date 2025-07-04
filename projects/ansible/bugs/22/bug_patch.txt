@@ -1,0 +1,1 @@
+["lib/ansible/plugins/inventory/script.py"]

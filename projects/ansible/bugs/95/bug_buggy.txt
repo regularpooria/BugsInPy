@@ -1,0 +1,92 @@
+misdocumented - xml element's to check text value without escape delimiter for special chars
+<!--- Verify first that your improvement is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below, add suggestions to wording or structure -->
+
+latest and devel documentation shows example to add escape characters for double quotes text. 
+i.e. to bypass " with \\". But this needs not to be done anymore with respect to the latest ansible version (ex. 2.8.5v)
+
+Current example : 
+- name: Add several more beers to the 'beers' element and add them before the 'Rochefort 10' element
+  xml:
+    path: /foo/bar.xml
+    xpath: '/business/beers/beer[text()=\\"Rochefort 10\\"]'
+    insertbefore: yes
+    add_children:
+    - beer: Old Rasputin
+    - beer: Old Motor Oil
+    - beer: Old Curmudgeon
+
+Should be : 
+- name: Add several more beers to the 'beers' element and add them before the 'Rochefort 10' element
+  xml:
+    path: /foo/bar.xml
+    xpath: '/business/beers/beer[text()="Rochefort 10"]'
+    insertbefore: yes
+    add_children:
+    - beer: Old Rasputin
+    - beer: Old Motor Oil
+    - beer: Old Curmudgeon
+
+
+<!--- HINT: Did you know the documentation has an "Edit on GitHub" link on every page ? -->
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the rst file, module, plugin, task or feature below, use your best guess if unsure -->
+xml module (label:m:xml)
+https://docs.ansible.com/ansible/latest/modules/xml_module.html
+https://docs.ansible.com/ansible/devel/modules/xml_module.html
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+[vagrant@azure-controller playbooks]$ ansible --version
+ansible 2.8.5
+  config file = /home/vagrant/.ansible.cfg
+  configured module search path = [u'/home/vagrant/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Aug  7 2019, 00:51:29) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+Not applicable
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. OS version, browser, etc. -->
+Not applicable
+##### ADDITIONAL INFORMATION
+<!--- Describe how this improves the documentation, e.g. before/after situation or screenshots -->
+before: 
+- name: Add several more beers to the 'beers' element and add them before the 'Rochefort 10' element
+  xml:
+    path: /foo/bar.xml
+    xpath: '/business/beers/beer[text()=\\"Rochefort 10\\"]'
+    insertbefore: yes
+    add_children:
+    - beer: Old Rasputin
+    - beer: Old Motor Oil
+    - beer: Old Curmudgeon
+
+after:
+- name: Add several more beers to the 'beers' element and add them before the 'Rochefort 10' element
+  xml:
+    path: /foo/bar.xml
+    xpath: '/business/beers/beer[text()="Rochefort 10"]'
+    insertbefore: yes
+    add_children:
+    - beer: Old Rasputin
+    - beer: Old Motor Oil
+    - beer: Old Curmudgeon
+
+<!--- HINT: You can paste gist.github.com links for larger files -->

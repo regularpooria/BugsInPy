@@ -1,0 +1,85 @@
+open_iscsi: string field conversion warning for the default port argument
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+The default `port` value of the `open_iscsi` module throws a type int to string conversion warning.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+- open_iscsi
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.9.3
+  config file = /Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg
+  configured module search path = [u'/Users/pascal/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/.venv/lib/python2.7/site-packages/ansible
+  executable location = /Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/.venv/bin/ansible
+  python version = 2.7.16 (default, Nov  9 2019, 05:55:08) [GCC 4.2.1 Compatible Apple LLVM 11.0.0 (clang-1100.0.32.4) (-macos10.15-objc-s
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+ANSIBLE_PIPELINING(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = True
+ANSIBLE_SSH_ARGS(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = -o ControlMaster=auto -o ControlPersist=60s
+ANSIBLE_SSH_CONTROL_PATH(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = %(directory)s/ansible-ssh-%%h-%%p-%%r
+DEFAULT_BECOME(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = True
+DEFAULT_FORKS(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = 20
+DEFAULT_HOST_LIST(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = [u'/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/hosts']
+DEFAULT_MANAGED_STR(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = !!! WARNING: This file is managed by Ansible, DON'T EDIT it manually !!!
+DEFAULT_ROLES_PATH(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = [u'/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/roles']
+INTERPRETER_PYTHON(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = /usr/bin/python3
+RETRY_FILES_ENABLED(/Users/pascal/Documents/02_business/01_confirm/confirm-git/infrastructure/ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+```
+╰─ lsb_release -a
+No LSB modules are available.
+Distributor ID:	Debian
+Description:	Debian GNU/Linux 10 (buster)
+Release:	10
+Codename:	buster
+```
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: perform a discovery and show available target nodes
+  open_iscsi:
+    show_nodes: yes
+    discover: yes
+    portal: '{{ iscsi_server }}'
+  tags:
+    - iscsi
+    - config
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+
+```paste below
+TASK [iscsi : perform a discovery and show available target nodes] *********************************************************************************************************************************************************************************************************************************************************
+```
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+TASK [iscsi : perform a discovery and show available target nodes] *********************************************************************************************************************************************************************************************************************************************************
+[WARNING]: The value 3260 (type int) in a string field was converted to '3260' (type string). If this does not look like what you expect, quote the entire value to ensure it does not change.
+```

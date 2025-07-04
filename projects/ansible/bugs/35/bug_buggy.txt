@@ -1,0 +1,108 @@
+Numerical Group name throws error in yaml formatted hosts file.
+### Summary
+
+When attempting to run a simple playbook to get the hostname of a cisco 3750x ansible fails to parse the yaml formatted hosts file. Playbook works with an INI formatted hosts file, however in an effort to use ansible-vault I need to migrate my file to yaml format.
+
+### Issue Type
+
+Bug Report
+
+### Component Name
+
+apt
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.12.4]
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/arcreigh/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3/dist-packages/ansible
+  ansible collection location = /home/arcreigh/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/bin/ansible
+  python version = 3.8.10 (default, Mar 15 2022, 12:22:08) [GCC 9.4.0]
+  jinja version = 2.10.1
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+N/A
+```
+
+
+### OS / Environment
+
+Ubuntu 20.04
+
+### Steps to Reproduce
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml (paste below)
+
+#/etc/ansible/hosts
+---
+
+all:
+  children:
+    Network:
+      children:
+        IOS:
+          hosts:
+            3750:
+              ansible_host: 3750.arc.net
+      vars:
+        ansible_connection: ansible.netcommon.network_cli
+        ansible_network_os: cisco.ios.ios
+        ansible_user: redacted
+        ansible_password: redacted
+
+#/home/ansible/playbooks/cisco/get_hostname.yml
+
+---
+
+- name: Get Cisco Device Hostname and Version
+  connection: ansible.netcommon.network_cli
+  gather_facts: false
+  hosts: all
+  tasks:
+
+    - name: Get config for IOS device
+      cisco.ios.ios_facts:
+        gather_subset: all
+    - name: Display config
+      debug:
+        msg: "The hostname is {{ ansible_net_hostname }} and the OS version is {{ ansible_net_version }}"
+
+```
+
+
+### Expected Results
+
+Expected output would be 
+The hostname is 3750.arc.net and the OS version is (insert ios version here)
+
+### Actual Results
+
+```console
+ansible-playbook -i /etc/ansible/hosts get_hostname.yml
+[WARNING]:  * Failed to parse /etc/ansible/hosts with yaml plugin: argument of type 'int' is not iterable
+[WARNING]:  * Failed to parse /etc/ansible/hosts with ini plugin: Invalid host pattern '---' supplied, '---' is normally a sign this is a YAML file.
+[WARNING]: Unable to parse /etc/ansible/hosts as an inventory source
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+PLAY [Get Cisco Device Hostname and Version] *************************************************************************************************************************************************
+skipping: no hosts matched
+
+PLAY RECAP ***********************************************************************************************************************************************************************************
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

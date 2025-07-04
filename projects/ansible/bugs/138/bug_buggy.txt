@@ -1,0 +1,89 @@
+win_snmp not working ?
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+win_snmp module doesnt set / add community strings or managers.  playbook results always shows the current configuration but no changes 
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+win_snmp
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.8.1
+  config file = /root/myplatform/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /root/.local/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Apr  9 2019, 14:30:50) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
+```
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+Windows server 2016 standard edition
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+simple playbook based on documentation sample. tested with kerberos and ntlm method, also with become: 
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+---
+- name: SNMP test
+  hosts: testhost
+  gather_facts: no
+
+  vars:
+    ansible_user: AD username
+    ansible_password: AD password
+    ansible_connection: winrm
+    ansible_winrm_transport: ntlm
+    ansible_winrm_server_cert_validation: ignore
+    snmp_community_ro:
+      - private
+    snmp_managers:
+      - localhost
+      - 10.10.10.10 
+  tasks:
+  - name: Replace SNMP communities
+    win_snmp:
+      communities: "{{ snmp_community_ro}}"
+      managers: "{{ snmp_managers }}"
+      action: set
+
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+expected to get SNMP settings changed
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+playbook result only shows the current SNMP settings - no changes are applied
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+
+PLAY [SNMP test] ***************************************************************
+
+TASK [Replace SNMP communities] ************************************************
+ok: [testhost] => {"changed": false, "community_strings": [], "permitted_managers": ["localhost"]}
+
+PLAY RECAP *********************************************************************
+testhost : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+
+```

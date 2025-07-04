@@ -1,0 +1,49 @@
+Does the module "meraki_vlan" work with Meraki China?
+<!--- Verify first that your improvement is not already reported on GitHub -->
+I had a search in Github, no related topic
+<!--- Also test if the latest release and devel branch are affected too -->
+The latest release doesn't work for us.
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below, add suggestions to wording or structure -->
+We are truely interested in managing the Meraki by Ansible , but we run into some errors when the module meraki_vlan is executed.  
+Meraki China has the domain name "meraki.cn" while the global domain name is "meraki.com".We are wondering if the module "meraki_vlan" work with Meraki China?  Please advise. 
+Really looking forward to see your feedback.
+<!--- HINT: Did you know the documentation has an "Edit on GitHub" link on every page ? -->
+Yes
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the rst file, module, plugin, task or feature below, use your best guess if unsure -->
+meraki_vlan
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.7.0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python2.7/dist-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 2.7.12 (default, Dec  4 2017, 14:50:18) [GCC 5.4.0 20160609]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+root@ubuntu:/usr/local/lib/python2.7/dist-packages#  ansible-config dump --only-changed
+ANSIBLE_SSH_ARGS(/etc/ansible/ansible.cfg) = -C -o ControlMaster=auto -o ControlPersist=30m
+ANSIBLE_SSH_CONTROL_PATH(/etc/ansible/ansible.cfg) = ~/.ssh/ansible-%%r@%%h:%%p
+HOST_KEY_CHECKING(/etc/ansible/ansible.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. OS version, browser, etc. -->
+
+##### ADDITIONAL INFORMATION
+<!--- Describe how this improves the documentation, e.g. before/after situation or screenshots -->
+
+<!--- HINT: You can paste gist.github.com links for larger files -->

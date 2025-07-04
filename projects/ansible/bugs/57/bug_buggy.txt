@@ -1,0 +1,87 @@
+The nios_a_record module updates values on existing records when in check mode
+##### SUMMARY
+The `nios_a_record` module updates values on existing records when in `--check` mode.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+`nios`
+`nios_a_record`
+
+##### ANSIBLE VERSION
+```
+$ ansible --version
+ansible 2.9.4
+  config file = /var/lib/jenkins/workspace/zure-infoblox-dns_initial_create/ansible.cfg
+  configured module search path = [u'/var/lib/jenkins/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 14:33:56) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+```
+
+##### CONFIGURATION
+```
+$ ansible-config dump --only-changed
+DEFAULT_STDOUT_CALLBACK(/var/lib/jenkins/workspace/zure-infoblox-dns_initial_create/ansible.cfg) = yaml
+```
+
+##### OS / ENVIRONMENT
+Red Hat Enterprise Linux 7.7
+Infoblox 8.3.4-381259
+```
+$ pip show infoblox-client
+DEPRECATION: Python 2.7 reached the end of its life on January 1st, 2020. Please upgrade your Python as Python 2.7 is no longer maintained. A future version of pip will drop support for Python 2.7. More details about Python 2 support in pip, can be found at https://pip.pypa.io/en/latest/development/release-process/#python-2-support
+Name: infoblox-client
+Version: 0.4.23
+Summary: Client for interacting with Infoblox NIOS over WAPI
+Home-page: https://github.com/infobloxopen/infoblox-client
+Author: John Belamaric
+Author-email: jbelamaric@infoblox.com
+License: Apache
+Location: /usr/lib/python2.7/site-packages
+Requires: urllib3, setuptools, oslo.log, requests, oslo.serialization
+Required-by: 
+
+```
+
+##### STEPS TO REPRODUCE
+There is a host record named test.example.com already present in Infoblox, with no comment. Ansible-playbook is run in `--check` mode to validate what would be changed.
+
+```
+ansible-playbook --check main.yml
+```
+
+```yaml
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+
+  tasks:
+  - name: Manage A Record
+    nios_a_record:
+      comment: "Test"
+      ipv4addr: "10.10.1.1"
+      name: "test.example.com"
+      provider: "{{ nios_provider }}"
+```
+
+##### EXPECTED RESULTS
+Task shows 'changed' but no data is changed.
+
+
+##### ACTUAL RESULTS
+The comment of the existing record is changed to 'Test'.
+
+```
+$ ansible-playbook --check main.yml
+
+PLAY [localhost] ***************************************************************
+
+TASK [Manage A Record] ********************************************************
+changed: [localhost] 
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```

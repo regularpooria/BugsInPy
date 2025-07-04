@@ -1,0 +1,49 @@
+Azure VNet Peering disconnected state
+##### SUMMARY
+The playbook will create virtual network peering between local and remote virtual network utilizing two Azure profiles for authentication passed into each module during playbook execution. This works as intended however an unintended behavior when 1 of the peerings is deleted leaving the other peering in a disconnected state. 
+
+Either the playbook will execute and state ok even when the peering is in a disconnected state and then error out due to peering being in a disconnected state. If we re-order the module execution the playbook will error out for the reason mentioned above.  
+
+The enhancement would be to enforce peerings where if either the remote or local vnet is disconnected to delete and recreate. 
+
+##### ISSUE TYPE
+Addittional functionality 
+
+##### COMPONENT NAME
+Azure Module: azure_rm_virtualnetworkpeering
+
+
+##### ADDITIONAL INFORMATION
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+---
+- hosts: all
+  serial: 1
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: Create virtual network peering
+    azure_rm_virtualnetworkpeering:
+      auth_source: credential_file
+      profile: sub2
+      state: present
+      resource_group: rg1
+      virtual_network: 'vnet1id'
+      name: peer1
+      remote_virtual_network:  'vnet2id'
+      allow_virtual_network_access: true
+      allow_forwarded_traffic: false
+  - name: Create virtual network peering
+    azure_rm_virtualnetworkpeering:
+      profile: 'sub1'
+      auth_source: credential_file
+      state: present
+      resource_group: rg2
+      virtual_network: 'vnet2id'
+      name: peer2
+      remote_virtual_network: 'vnet1id'
+      allow_virtual_network_access: true
+      allow_forwarded_traffic: false
+```
+

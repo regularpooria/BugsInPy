@@ -1,0 +1,56 @@
+azure_rm_virtualmachine: Error parsing blob URI
+##### SUMMARY
+When creating a VM with unmanaged disks, VHD URIs must be specified. As explained in the online [Azure VHD documentation](https://docs.microsoft.com/en-us/azure/marketplace/cloud-partner-portal/virtual-machine/cpp-deploy-json-template), the URI is created with __http__ as scheme. When VM facts are retrieved, the URI set at deployment time are correctly retrieved, untouched.
+
+Unfortunately, when it comes to delete the VM, in the module's __extract_names_from_blob_uri__ method, the code validates the URI using a regexp that only considers __https__ as a valid scheme.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+* azure_rm_virtualmachine
+
+##### ANSIBLE VERSION
+```paste below
+ansible 2.8.5
+  config file = /home/***/ansible/ansible_dev.cfg
+  configured module search path = [u'/home/***/ansible/library']
+  ansible python module location = /home/***/ansible/.venv/lib/python2.7/site-packages/ansible
+  executable location = /home/***/ansible/.venv/bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 14:33:56) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+```
+
+##### CONFIGURATION
+```paste below
+DEFAULT_BECOME_METHOD(/home/***/ansible/ansible_dev.cfg) = sudo
+DEFAULT_BECOME_USER(/home/***/ansible/ansible_dev.cfg) = root
+DEFAULT_GATHER_TIMEOUT(/home/***/ansible/ansible_dev.cfg) = 30
+DEFAULT_HOST_LIST(/home/***/ansible/ansible_dev.cfg) = [u'/home/***/ansible/inventory/azure-dev']
+DEFAULT_LOG_PATH(/home/***/ansible/ansible_dev.cfg) = /home/***/ansible.log
+DEFAULT_MODULE_PATH(/home/***/ansible/ansible_dev.cfg) = [u'/home/***/ansible/library']
+DEFAULT_ROLES_PATH(/home/***/ansible/ansible_dev.cfg) = [u'/home/***/ansible/roles']
+DEFAULT_VAULT_IDENTITY_LIST(/home/***/ansible/ansible_dev.cfg) = []
+HOST_KEY_CHECKING(/home/***/ansible/ansible_dev.cfg) = False
+INVENTORY_ENABLED(/home/***/ansible/ansible_dev.cfg) = [u'yaml', u'azure_rm', u'script']
+RETRY_FILES_ENABLED(/home/***/ansible/ansible_dev.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+Controller: RHEL 7.4
+
+##### STEPS TO REPRODUCE
+* Deploy a new VM using the following ARM template: https://docs.microsoft.com/en-us/azure/marketplace/cloud-partner-portal/virtual-machine/cpp-deploy-json-template
+* Use azure_rm_virtualmachine to delete the VM using the __state: absent__
+
+##### EXPECTED RESULTS
+The module runs w/o any errors and the VHD disks are deleted.
+
+##### ACTUAL RESULTS
+The module fails with the following error:
+```json
+{
+"msg": "Error parsing blob URI unable to parse blob uri 'http://my-sa.blob.core.windows.net/vhds/my-vm_osdisk.vhd'",
+    "changed": false,
+    "_ansible_no_log": false
+}
+```

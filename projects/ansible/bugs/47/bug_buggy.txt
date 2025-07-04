@@ -1,0 +1,22 @@
+"assemble" docs talk about directories
+##### SUMMARY
+See https://docs.ansible.com/ansible/latest/collections/ansible/builtin/assemble_module.html .
+Many parameters mention directory (for example, "The attributes the resulting file or directory should have.").
+
+This module does not seem to create directories, thus that is rather confusing.
+
+Might not be that simple to fix, as it seems to be a result of:
+```
+extends_documentation_fragment:
+...
+- files
+```
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+assemble
+
+##### ANSIBLE VERSION
+latest

@@ -1,0 +1,71 @@
+Service module use: argument description is not valid
+### Summary
+
+On https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html the `use` parameter is not documented consistently with how I've been told this parameter works in https://github.com/ansible/ansible/issues/80142 .
+
+The documentation states "The service module actually uses system specific modules, normally through auto detection, this setting can force a specific module. Normally it uses the value of the ‘ansible_service_mgr’ fact and falls back to the old ‘service’ module when none matching is found."
+
+From this one would naturally assume that this uses an auto-detected default, but if the argument is provided, it instead uses the provided method.
+
+Yet in the aforementioned issue, it was explained to me that: "There is no way to force the service module to use the service command on a systemd managed system."
+
+Perhaps this should be reworded by someone who understands exactly how this works, to use less ambigous terms than "service module" and "old service module", especially when the behaviour of this "old 'service' module" does not appear to be documented anywhere.
+
+The summary: "This module is a proxy for multiple more specific service manager modules (such as ansible.builtin.systemd and ansible.builtin.sysvinit). This allows management of a heterogeneous environment of machines without creating a specific task for each service manager. The module to be executed is determined by the use option, which defaults to the service manager discovered by ansible.builtin.setup." ...thus also appears to be incorrect.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+service module
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.13.4]
+  config file = /home/username/dev-jsah/ansible.cfg
+  configured module search path = ['/home/username/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.9/site-packages/ansible
+  ansible collection location = /home/username/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.9.7 (default, Sep 21 2021, 00:13:39) [GCC 8.5.0 20210514 (Red Hat 8.5.0-3)]
+  jinja version = 3.1.2
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+DEFAULT_NO_LOG(/home/username/dev-jsah/ansible.cfg) = False
+DEFAULT_ROLES_PATH(/home/username/dev-jsah/ansible.cfg) = ['/home/username/dev-jsah/roles', '/usr/share/ansible/roles']
+DEFAULT_STDOUT_CALLBACK(/home/username/dev-jsah/ansible.cfg) = yaml
+HOST_KEY_CHECKING(/home/username/dev-jsah/ansible.cfg) = False
+
+CONNECTION:
+==========
+
+paramiko_ssh:
+____________
+host_key_checking(/home/username/dev-jsah/ansible.cfg) = False
+
+ssh:
+___
+host_key_checking(/home/username/dev-jsah/ansible.cfg) = False
+```
+
+
+### OS / Environment
+
+irrelevant, documentation issue on "latest"
+
+### Additional Information
+
+This would resolve the misunderstanding people seem to have in regards to this parameter.
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

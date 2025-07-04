@@ -1,0 +1,130 @@
+scp_if_ssh not working as intended with OpenSSH since version 9.0
+### Summary
+
+The option `scp_if_ssh = true` is used to force Ansible to use scp instead of sftp on targets, that don't support sftp. However since OpenSSH 9.0 (8.8 on Arch Linux it seems) even the scp utility defaults to using sftp. The old behavior can be enabled by additionally setting `scp_extra_args = "-O"` to force scp to use the old protocol.
+
+I recognize that this is not an Ansible bug, but it may break documented and expected behavior.
+
+OpenSSH Changelog: https://www.openssh.com/txt/release-9.0
+> This release switches scp(1) from using the legacy scp/rcp protocol to using the SFTP protocol by default.
+
+### Issue Type
+
+~Bug Report~
+Documentation Report
+
+### Component Name
+
+connection, ssh, scp
+
+### Ansible Version
+
+```console
+ansible [core 2.13.2]
+  config file = None
+  configured module search path = ['/home/ansible/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.9/dist-packages/ansible
+  ansible collection location = /home/ansible/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.9.2 (default, Feb 28 2021, 17:03:44) [GCC 10.2.1 20210110]
+  jinja version = 3.1.2
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+CONNECTION:
+==========
+
+ssh:
+___
+scp_extra_args(env: ANSIBLE_SCP_EXTRA_ARGS) = -O
+scp_if_ssh(env: ANSIBLE_SCP_IF_SSH) = true
+```
+
+
+### OS / Environment
+
+Debian Sid
+
+### Steps to Reproduce
+
+configure sshd to not offer sftp. (eg. delete `Subsystem       sftp    /usr/lib/ssh/sftp-server` from `/etc/ssh/sshd_config` and restart)
+
+create a small example playbook, contents are irrelevant
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- hosts: localhost
+  gather_facts: true
+  remote_user: root
+  tasks:
+    - name: install a nonexistant package
+      package:
+        name:
+          - less-is-more
+```
+
+execute wit Ansible configuration or environment setting to use scp:
+```
+export ANSIBLE_SCP_IF_SSH=false
+ansible-playbook -c ssh playbook.yml
+```
+
+### Expected Results
+
+```
+ansible@instance:~$ ansible-playbook -c ssh playbook.yml
+
+PLAY [localhost] ***************************************************************************************************
+
+TASK [Gathering Facts] *********************************************************************************************
+ok: [localhost]
+
+TASK [install a nonexistant package] *******************************************************************************
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "No package matching 'less-is-more' is available"}
+
+PLAY RECAP *********************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+```
+
+### Actual Results
+
+```console
+with only `scp_if_ssh`:
+
+
+ansible@instance:~$ ansible-playbook -c ssh playbook.yml
+
+PLAY [localhost] ***************************************************************************************************************************************
+
+TASK [Gathering Facts] *********************************************************************************************************************************
+fatal: [localhost]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via scp: scp: Connection closed\r\n", "unreachable": true}
+
+PLAY RECAP *********************************************************************************************************************************************
+localhost                  : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+with additional setting to acc `-O`to scp (working correctly):
+```
+ansible@instance:~$ export ANSIBLE_SCP_EXTRA_ARGS="-O"
+ansible@instance:~$ ansible-playbook -c ssh playbook.yml
+
+PLAY [localhost] ***************************************************************************************************
+
+TASK [Gathering Facts] *********************************************************************************************
+ok: [localhost]
+
+TASK [install a nonexistant package] *******************************************************************************
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "No package matching 'less-is-more' is available"}
+
+PLAY RECAP *********************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+```
+```
+
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

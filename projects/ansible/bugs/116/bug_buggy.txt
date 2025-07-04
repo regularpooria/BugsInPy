@@ -1,0 +1,91 @@
+package_facts requires python-apt on Debian systems in ansible 2.8.3
+##### SUMMARY
+The document for package_facts does not specify a requirement of python-apt being in an installed state on the system of which the module `package_facts` is going to collect package related data. While this may not cause any issue for EL based systems or any other - package_facts will return an error when used on any Debian based systems where python-apt package is not already in an installed state. 
+
+##### ISSUE TYPE
+- Documentation Report
+
+##### COMPONENT NAME
+package_facts
+
+##### ANSIBLE VERSION
+
+```
+2.8.3
+```
+
+
+##### OS / ENVIRONMENT
+* Ubuntu 18.04
+* Ubuntu 16.04
+* Debian 8
+* Debian 9
+* Debian 10
+
+
+##### STEPS TO REPRODUCE
+
+On any debian based system, ensure that python-apt package is not available to test it.
+
+```shell
+sudo apt-get remove python-apt
+```
+
+Then run the following playbook on an ansible controller node to test locally.
+
+```yaml
+ name: Playbook to test package_facts module locally on any Debian based system.
+  hosts: localhost
+  become: yes
+  connection: local
+  gather_facts: yes
+  tasks:
+    - name: Gather package facts on Debian based systems
+      package_facts:
+        manager: auto
+      when: ansible_os_family == "Debian"
+```
+
+
+
+##### EXPECTED RESULTS
+```yaml
+$ ansible-playbook package.yml
+
+PLAY [Playbook to test package_facts module locally on any Debian based system.] *******
+
+TASK [Gathering Facts] *****************************************************************
+ok: [localhost]
+
+TASK [Gather package facts on Debian based systems] ************************************
+ok: [localhost]
+
+PLAY RECAP *****************************************************************************
+localhost                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+
+##### ACTUAL RESULTS
+
+```yaml
+$ ansible-playbook package.yml
+
+PLAY [Playbook to test package_facts module locally on any Debian based system.] *******
+
+TASK [Gathering Facts] *****************************************************************
+ok: [localhost]
+
+TASK [Gather package facts on Debian based systems] ************************************
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "Could not detect a supported package manager from the following list: ['portage', 'rpm', 'pkg', 'apt']"}
+
+PLAY RECAP *****************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+```
+
+##### Temporary workaround:
+
+To install `python-apt` package on any Debian based systems where package_facts module is going to be used for.
+
+##### Recommendation:
+
+To either remove dependency on python-apt for Debian based systems from package_facts module or to specify python-apt requirement (for Debain based systems) in package_facts documentation.

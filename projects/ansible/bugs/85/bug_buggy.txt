@@ -1,0 +1,62 @@
+azure_rm_storageaccount_info: Unable to retrieve all storage accounts
+##### SUMMARY
+If the resource_group module parameter is not specified, the module is supposed to fetch all storage account of the current subscription. Unfortunately, the module is bugged and the module 'list_all' method calls 'list_by_resource_group()' rather than 'list()'.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+* azure_rm_storageaccount_facts
+* azure_rm_storageaccount_info
+
+##### ANSIBLE VERSION
+```paste below
+ansible 2.8.5
+  config file = /home/***/ansible/ansible_dev.cfg
+  configured module search path = [u'/home/***/ansible/library']
+  ansible python module location = /home/***/ansible/.venv/lib/python2.7/site-packages/ansible
+  executable location = /home/***/ansible/.venv/bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 14:33:56) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+DEFAULT_BECOME_METHOD(/home/***/ansible/ansible_dev.cfg) = sudo
+DEFAULT_BECOME_USER(/home/***/ansible/ansible_dev.cfg) = root
+DEFAULT_GATHER_TIMEOUT(/home/***/ansible/ansible_dev.cfg) = 30
+HOST_KEY_CHECKING(/home/***/ansible/ansible_dev.cfg) = False
+INVENTORY_ENABLED(/home/***/ansible/ansible_dev.cfg) = [u'yaml', u'azure_rm', u'script']
+RETRY_FILES_ENABLED(/home/***/ansible/ansible_dev.cfg) = False
+```
+
+##### OS / ENVIRONMENT
+
+* Red Hat Enterprise Linux Server release 7.4 (Maipo)
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+Call the module with no name and no resrouce_group speficied.
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- name: Fetch all the storage accounts in the subscription
+  azure_rm_storageaccount_facts:
+    show_blob_cors: no
+    show_connection_string: no
+    subscription_id: "***"
+    tenant: "***"
+    client_id: "***"
+    secret: "***"
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+The module succeeds to fetch all storage accounts.
+
+##### ACTUAL RESULTS
+```paste below
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: msrest.exceptions.ValidationError: Parameter 'resource_group_name' can not be None.
+```

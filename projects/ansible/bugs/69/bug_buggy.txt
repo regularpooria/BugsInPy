@@ -1,0 +1,106 @@
+nmcli not working on Ubuntu: `No package matching 'libnm-glib-dev' is available`
+##### SUMMARY
+
+The [docu](https://docs.ansible.com/ansible/latest/modules/nmcli_module.html) lists some requirements to be installed:
+
+- network-manager
+- python3-dbus
+- libnm-glib-dev
+
+however there is no package`libnm-glib-dev` available in Ubuntu and it is not clear how to install the required libraries.
+
+```bash
+fatal: [node001]: FAILED! => {"changed": false, "msg": "No package matching 'libnm-glib-dev' is available"}
+```
+Removing installation of `libnm-glib-dev` will lead to a subsequent error
+
+```bash
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: ValueError: Namespace NMClient not available
+fatal: [node001]: FAILED! => {"changed": false, "msg": "Failed to import the required Python library (NetworkManager glib API) on node001's Python /usr/biNo package matching 'libnm-glib-dev' is availablen/python3. Please read module documentation and install in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter, please consult the documentation on ansible_python_interpreter"}
+```
+
+##### ISSUE TYPE
+
+- Bug Report
+
+##### COMPONENT NAME
+
+component nmcli
+
+##### ANSIBLE VERSION
+
+```
+ansible 2.9.0
+  config file = /home/aedu/ansible.cfg
+  configured module search path = ['/home/aedu/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 3.7.4 (default, Oct  4 2019, 06:57:26) [GCC 9.2.0]
+```
+
+##### CONFIGURATION
+
+```
+DEFAULT_HOST_LIST(/home/aedu/ansible.cfg) = ['/home/aedu/inventory.yml']
+DEFAULT_REMOTE_USER(/home/aedu/ansible.cfg) = ansible
+DEFAULT_ROLES_PATH(/home/aedu/ansible.cfg) = ['/home/aedu/roles']
+DEFAULT_TIMEOUT(/home/aedu/ansible.cfg) = 10
+DEFAULT_VAULT_PASSWORD_FILE(/home/aedu/ansible.cfg) = /home/aedu/.ssh/wyssmann
+RETRY_FILES_SAVE_PATH(/home/aedu/ansible.cfg) = /home/aedu/.ansible-retry
+```
+
+##### OS / ENVIRONMENT
+
+```bash
+#  uname -a
+Linux node001 5.3.0-19-generic #20-Ubuntu SMP Fri Oct 18 09:04:39 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+
+# cat /etc/os-release 
+NAME="Ubuntu"
+VERSION="19.10 (Eoan Ermine)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 19.10"
+VERSION_ID="19.10"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=eoan
+UBUNTU_CODENAME=eoan
+```
+
+##### STEPS TO REPRODUCE
+
+As using python3 the packages are slighty different I've updated these
+
+```yaml
+- name: install needed network manager libs
+  package:
+    name:
+      - network-manager
+      - python3-dbus
+      - libnm-glib-dev
+    state: present
+
+- name: Configure {{ iface.name }}
+  nmcli:
+    conn_name: '{{ iface.name }}'
+    ifname: '{{ iface.name }}'
+    type: ethernet
+    ip4: '{{ ipv4.address }}'
+    gw4: '{{ ipv4.gateway }}'
+    ip6: '{{ ipv6.address }}'
+    gw6: '{{ ipv6.gateway }}'
+    state: present
+```
+
+##### EXPECTED RESULTS
+
+nmcli works fine
+
+##### ACTUAL RESULTS
+
+```bash
+fatal: [node001]: FAILED! => {"changed": false, "msg": "No package matching 'libnm-glib-dev' is available"}
+```

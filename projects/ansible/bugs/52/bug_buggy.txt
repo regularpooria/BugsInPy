@@ -1,0 +1,47 @@
+Documentation: The warning that `become` show, point to a non-existing page.
+##### SUMMARY
+The warning that `become` show, point to a non-existing page.
+
+The reference: https://docs.ansible.com/ansible/become.html#becoming-an-unprivileged-user
+Should be: https://docs.ansible.com/ansible/user_guide/become.html#risks-of-becoming-an-unprivileged-user
+
+```
+  msg: |-
+    Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chown: changing ownership of '/var/tmp/ansible-tmp-1587201990.1515293-106086999273646/': Operation not permitted
+    chown: changing ownership of '/var/tmp/ansible-tmp-1587201990.1515293-106086999273646/AnsiballZ_postgresql_db.py': Operation not permitted
+    }). For information on working around this, see https://docs.ansible.com/ansible/become.html#becoming-an-unprivileged-user
+```
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+become
+
+##### ANSIBLE VERSION
+```
+ansible 2.9.6
+  config file = None
+  configured module search path = ['/home/robertdb/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.7/site-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.7.6 (default, Jan 30 2020, 09:44:41) [GCC 9.2.1 20190827 (Red Hat 9.2.1-1)]
+```
+
+##### CONFIGURATION
+```
+# empty.
+```
+
+##### OS / ENVIRONMENT
+Controller: Fedora 31
+Managed node: Ubuntu 19
+
+##### STEPS TO REPRODUCE
+I use [this](https://github.com/robertdebock/ansible-role-postgres/blob/master/tasks/main.yml#L70) role on Ubuntu 19. (Using [this](https://github.com/robertdebock/ansible-tester) code.
+
+##### EXPECTED RESULTS
+The chapter is found immediately.
+
+##### ACTUAL RESULTS
+The documentation page loads (good), but does not jump to the right chapter.

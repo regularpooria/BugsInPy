@@ -1,0 +1,30 @@
+VMware: require "vmware_host_facts" module return ESXi server update version info
+<!--- Verify first that your feature was not already discussed on GitHub -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Describe the new feature/improvement briefly below -->
+Now "vmware_host_facts" module returns the ESXi version and build number, no update version info, so request getting that info too.
+References:
+https://www.virtuallyghetto.com/2016/08/quick-tip-how-to-retrieve-the-esxi-update-level-using-the-vsphere-api.html
+MOB path:
+https://esxi_hostname/mob/?moid=ha-adv-options&doPath=setting%5b%22Misc.HostAgentUpdateLevel%22%5d
+
+
+
+
+##### ISSUE TYPE
+- Feature Idea
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+vmware_host_facts
+##### ADDITIONAL INFORMATION
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
+Some features of ESXi are introduced in specific ESXi update release, so it's better to get that info and use it as a condition before some tasks. 
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+
+```
+
+<!--- HINT: You can also paste gist.github.com links for larger files -->

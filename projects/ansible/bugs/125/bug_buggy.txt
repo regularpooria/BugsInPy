@@ -1,0 +1,142 @@
+ansible_net_model is not populated when "C" in Cisco is lowercase in `show version`
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+When the "C" in Cisco is lowercase in `show version` the `anislbe_net_model` is not being populated.
+
+Example from show version:
+~~~
+somehostname#show version
+Cisco IOS Software, C3560E Software (C3560E-UNIVERSALK9-M), Version 15.2(2)E9, RELEASE SOFTWARE (fc4)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2018 by Cisco Systems, Inc.
+Compiled Sat 08-Sep-18 16:28 by fubar
+
+ROM: Bootstrap program is C3560E boot loader
+BOOTLDR: C3560E Boot Loader (C3560X-HBOOT-M) Version 15.2(3r)E, RELEASE SOFTWARE (fc1)
+
+somehostname uptime is 10 weeks, 2 days, 10 hours, 52 minutes
+System returned to ROM by power-on
+System restarted at 07:04:16 GMT Mon May 13 2019
+System image file is "flash:/c3560e-universalk9-mz.152-2.E9.bin"
+Last reload reason: Reload command
+
+<snip>
+
+License Level: ipbase
+License Type: Permanent
+Next reload license Level: ipbase
+
+cisco WS-C3560X-48P (PowerPC405) processor (revision W0) with 262144K bytes of memory.
+Processor board ID FDO1944F34G
+Last reset from power-on
+1 Virtual Ethernet interface
+1 FastEthernet interface
+52 Gigabit Ethernet interfaces
+2 Ten Gigabit Ethernet interfaces
+The password-recovery mechanism is enabled.
+
+512K bytes of flash-simulated non-volatile configuration memory.
+Base ethernet MAC Address       : XX:XX:XX:XX:XX:XX
+Motherboard assembly number     : XX-XXXXX-XX
+Motherboard serial number       : XXXXXXXXXXX
+Model revision number           : W0
+Motherboard revision number     : A0
+Model number                    : WS-C3560X-48P-S
+Daughterboard assembly number   : 800-32786-02
+Daughterboard serial number     : FDO194406YV
+System serial number            : FDO1944F34G
+Top Assembly Part Number        : 800-38995-01
+Top Assembly Revision Number    : B0
+Version ID                      : V07
+CLEI Code Number                : CMMPT00DRB
+Hardware Board Revision Number  : 0x05
+
+
+Switch Ports Model                     SW Version            SW Image           
+------ ----- -----                     ----------            ----------         
+*    1 54    WS-C3560X-48P             15.2(2)E9             C3560E-UNIVERSALK9-M
+
+
+Configuration register is 0xF
+
+somehostname#
+~~~
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+ios_facts
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+ansible 2.8.0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/u346989/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 12:19:05) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+ANSIBLE_NOCOWS(/etc/ansible/ansible.cfg) = True
+DEFAULT_FORKS(/etc/ansible/ansible.cfg) = 6
+DEFAULT_ROLES_PATH(/etc/ansible/ansible.cfg) = [u'/etc/ansible/roles', u'/usr/share/ansible/roles']
+HOST_KEY_CHECKING(/etc/ansible/ansible.cfg) = False
+PERSISTENT_COMMAND_TIMEOUT(/etc/ansible/ansible.cfg) = 900
+PERSISTENT_CONNECT_RETRY_TIMEOUT(/etc/ansible/ansible.cfg) = 120
+PERSISTENT_CONNECT_TIMEOUT(/etc/ansible/ansible.cfg) = 900
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+```
+Switch Ports Model                     SW Version            SW Image           
+------ ----- -----                     ----------            ----------         
+*    1 54    WS-C3560X-48P             15.2(2)E9             C3560E-UNIVERSALK9-M
+```
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+- hosts: all
+  connection: network_cli
+  gather_facts: no
+
+  tasks:
+    - name: gather facts from IOS device
+      ios_facts:
+        gather_subset: all
+
+    - name: Debug ansible_net_model
+      debug:
+        var: ansible_net_model
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+Allow regex match of lowercase "C" in Cisco and populate `ansible_net_model`
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+TASK [Debug ansible_net_model] *******************************************************************
+ok: [<somehostname>] => {
+    "ansible_net_model": "VARIABLE IS NOT DEFINED!"
+}
+```
+
+PR: https://github.com/ansible/ansible/pull/59550

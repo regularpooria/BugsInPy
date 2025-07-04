@@ -1,0 +1,120 @@
+vmware_guest throws error when guest is in 'suspended' state attempting to move to 'poweredon'
+<!--- Verify first that your issue is not already reported on GitHub -->
+<!--- Also test if the latest release and devel branch are affected too -->
+<!--- Complete *all* sections as described, this form is processed automatically -->
+
+##### SUMMARY
+<!--- Explain the problem briefly below -->
+vmware_guest throws error when guest is in 'suspended' state attempting to move to 'poweredon'
+
+Exercising all other state transitions and they seem to work fine.  poweredon, poweredoff, restarted, shutdownguest, rebootguest
+
+Only occurs when machine is in 'suspended' state and we attempt to move it to 'poweredon' or anyt other state.
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+<!--- Write the short name of the module, plugin, task or feature below, use your best guess if unsure -->
+  vmware_guest
+
+##### ANSIBLE VERSION
+<!--- Paste verbatim output from "ansible --version" between quotes -->
+```paste below
+
+```
+
+##### CONFIGURATION
+<!--- Paste verbatim output from "ansible-config dump --only-changed" between quotes -->
+```paste below
+
+ansible 2.7.8
+  config file = /Users/spollock/ansible/fs-vmw-control/ansible.cfg
+  configured module search path = [u'/Users/spollock/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/spollock/anaconda2/lib/python2.7/site-packages/ansible
+  executable location = /Users/spollock/anaconda2/bin/ansible
+  python version = 2.7.15 |Anaconda, Inc.| (default, Dec 14 2018, 13:10:39) [GCC 4.2.1 Compatible Clang 4.0.1 (tags/RELEASE_401/final)]
+
+
+```
+
+##### OS / ENVIRONMENT
+<!--- Provide all relevant information below, e.g. target OS versions, network device firmware, etc. -->
+ProductName:	Mac OS X
+ProductVersion:	10.14.6
+BuildVersion:	18G103
+
+
+##### STEPS TO REPRODUCE
+<!--- Describe exactly how to reproduce the problem, using a minimal test-case -->
+
+<!--- Paste example playbooks or commands between quotes below -->
+```yaml
+
+- name: "Changing Machine state for: {{ vcpwrname }} to State: {{ vcpwrstate }}"
+  vmware_guest:
+    validate_certs: no
+    state: "{{ vcpwrstate }}"
+    hostname: "{{ vcenterhostname }}"
+    username: "{{ vcusername }}"
+    password: "{{ vcpassword }}"
+    datacenter: "{{ vcdatacenter }}"
+    name: "{{ vcpwrname }}"
+    folder: "{{ vcpwrfolder }}"
+  delegate_to: localhost
+  tags: power
+
+```
+
+<!--- HINT: You can paste gist.github.com links for larger files -->
+
+##### EXPECTED RESULTS
+<!--- Describe what you expected to happen when running the steps above -->
+
+Expected machine to return from suspended state.
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```paste below
+
+Instead, the following error is thrown:
+
+TASK [power-single : Changing Machine state for: Pollock-W10 to State: poweredon] *************************************************************************
+task path: /Users/spollock/ansible/fs-vmw-control/roles/power-single/tasks/main.yml:12
+<localhost> ESTABLISH LOCAL CONNECTION FOR USER: spollock
+<localhost> EXEC /bin/sh -c 'echo ~spollock && sleep 0'
+<localhost> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079 `" && echo ansible-tmp-1573230765.56-35724150586079="` echo /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079 `" ) && sleep 0'
+Using module file /Users/spollock/anaconda2/lib/python2.7/site-packages/ansible/modules/cloud/vmware/vmware_guest.py
+<localhost> PUT /Users/spollock/.ansible/tmp/ansible-local-84161qhcXMy/tmpMTq2G4 TO /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py
+<localhost> EXEC /bin/sh -c 'chmod u+x /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/ /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py && sleep 0'
+<localhost> EXEC /bin/sh -c '/usr/bin/python /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py && sleep 0'
+<localhost> EXEC /bin/sh -c 'rm -f -r /Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/ > /dev/null 2>&1 && sleep 0'
+The full traceback is:
+Traceback (most recent call last):
+  File "/Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py", line 113, in <module>
+    _ansiballz_main()
+  File "/Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py", line 105, in _ansiballz_main
+    invoke_module(zipped_mod, temp_path, ANSIBALLZ_PARAMS)
+  File "/Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py", line 48, in invoke_module
+    imp.load_module('__main__', mod, module, MOD_DESC)
+  File "/var/folders/3g/2y8gx9ds133d8qyhqk8yd5tc0000gp/T/ansible_vmware_guest_payload_Z5rt91/__main__.py", line 2396, in <module>
+  File "/var/folders/3g/2y8gx9ds133d8qyhqk8yd5tc0000gp/T/ansible_vmware_guest_payload_Z5rt91/__main__.py", line 2372, in main
+KeyError: 'instance'
+
+fatal: [localhost -> localhost]: FAILED! => {
+    "changed": false, 
+    "module_stderr": "Traceback (most recent call last):\n  File \"/Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py\", line 113, in <module>\n    _ansiballz_main()\n  File \"/Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py\", line 105, in _ansiballz_main\n    invoke_module(zipped_mod, temp_path, ANSIBALLZ_PARAMS)\n  File \"/Users/spollock/.ansible/tmp/ansible-tmp-1573230765.56-35724150586079/AnsiballZ_vmware_guest.py\", line 48, in invoke_module\n    imp.load_module('__main__', mod, module, MOD_DESC)\n  File \"/var/folders/3g/2y8gx9ds133d8qyhqk8yd5tc0000gp/T/ansible_vmware_guest_payload_Z5rt91/__main__.py\", line 2396, in <module>\n  File \"/var/folders/3g/2y8gx9ds133d8qyhqk8yd5tc0000gp/T/ansible_vmware_guest_payload_Z5rt91/__main__.py\", line 2372, in main\nKeyError: 'instance'\n", 
+    "module_stdout": "", 
+    "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error", 
+    "rc": 1
+}
+
+PLAY RECAP ************************************************************************************************************************************************
+localhost                  : ok=0    changed=0    unreachable=0    failed=1   
+
+
+
+
+```

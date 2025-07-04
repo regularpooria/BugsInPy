@@ -1,0 +1,66 @@
+Proper Inventory script usage, expected JSON output format, more verbose errors?
+### Summary
+
+I've been working on trying to get a working Inventory script for a month now and while normally the documentation is pretty awesome.. anything I can find for the script module is all but bare.
+I realize folks would rather people created plugins, however in my situation a script makes more sense and is more doable.
+
+Anyway the page here: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/script_inventory.html#script-inventory
+
+Really needs to be fleshed out with an example of the required JSON block that will be ingested along with how to test using ansible-inventory. I'd also like to mention that in my battle trying to get this to work, the resulting errors once might receive are super not helpful in determining what went wrong.
+
+I don't want to segway off into this being a bug report but suffice to say I am returning valid JSON, but the controller claims otherwise. And I have no actual documentation to help troubleshoot this issue with.
+
+One specific error condition that I hope can be improved: 
+` Expecting value: line 1 column 1 (char 0).
+Expecting value: line 1 column 1 (char 0)`
+
+If there's any way that this could actually return the values (or line) in question that'd be much more helpful than the existing text.
+
+Thanks!
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+script
+
+### Ansible Version
+
+```console
+$ ansible --version
+ansible [core 2.14.4]
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/runner/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.9/site-packages/ansible
+  ansible collection location = /home/runner/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/bin/ansible
+  python version = 3.9.13 (main, Nov  9 2022, 13:16:24) [GCC 8.5.0 20210514 (Red Hat 8.5.0-15)] (/usr/bin/python3.9)
+  jinja version = 3.1.2
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+# if using a version older than ansible-core 2.12 you should omit the '-t all'
+$ ansible-config dump --only-changed -t all
+bash-4.4# ansible-config dump --only-changed -t all
+CONFIG_FILE() = /etc/ansible/ansible.cfg
+```
+
+
+### OS / Environment
+
+ansible23/ee-supported-rhel8
+
+### Additional Information
+
+Having asked around online in various places, I am not the only one who relies upon this module and also who has had trouble using it.
+Now I do agree that building a plugin might be better overall, but not everyone has the skills or the access to those that do to accomplish this. So having and using the script module is our Obi Wan, please help us use it correctly.
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

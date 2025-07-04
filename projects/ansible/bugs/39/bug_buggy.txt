@@ -1,0 +1,59 @@
+pytest 7 test failures
+### Summary
+
+In Fedora, we are testing the impact of pytest 7.0.0rc1 on our packages. Both `ansible` 2.9.27 and `ansible-core` 2.12.1 fail with various different errors. 
+
+ansible:
+
+    = 1836 failed, 8451 passed, 711 skipped, 7 warnings, 12 errors in 665.67s (0:11:05) =
+
+ansible-core:
+
+    =========== 25 failed, 1768 passed, 11 skipped, 7 warnings in 49.19s ===========
+
+### Issue Type
+
+Bug Report
+
+### Component Name
+
+test?
+
+### Ansible Version
+
+```console
+2.9.27
+```
+
+
+### Configuration
+
+```console
+N/A
+```
+
+
+### OS / Environment
+
+Fedora Linux 36, Python 3.10.1, pytest 7.0.0rc1
+
+### Steps to Reproduce
+
+In Fedora, we build the packages in this copr: https://copr.fedorainfracloud.org/coprs/churchyard/pytest-7/
+
+Unfortunately, I don't know ansible much and I don't know how you run the tests, but should be reproducible if you install a pre-release pytest to the environment.
+
+### Expected Results
+
+The tests should pass, as they do with pytest 6.2.5.
+
+### Actual Results
+
+- Actual results for ansible: [ansible-builder-live.log.gz](https://github.com/ansible/ansible/files/7734616/ansible-builder-live.log.gz)
+- Actual results for ansible-core: [ansible-core-builder-live.log.gz](https://github.com/ansible/ansible/files/7734617/ansible-core-builder-live.log.gz)
+
+Also available at https://copr.fedorainfracloud.org/coprs/churchyard/pytest-7/package/ansible/ and https://copr.fedorainfracloud.org/coprs/churchyard/pytest-7/package/ansible-core/
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct

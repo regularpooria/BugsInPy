@@ -1,0 +1,55 @@
+win_mapped_drive unable to add webdav network location
+
+##### SUMMARY
+Can't use webdav url for path in this module 
+<img width="592" alt="image" src="https://user-images.githubusercontent.com/8070665/73541233-ce143480-4429-11ea-8c03-016c608d0e10.png">
+
+##### ISSUE TYPE
+- Bug Report
+
+##### COMPONENT NAME
+win_mapped_drive
+##### ANSIBLE VERSION
+```
+ansible 2.9.3
+  config file = None
+  configured module search path = ['/Users/sianob/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/Cellar/ansible/2.9.3/libexec/lib/python3.8/site-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.8.1 (default, Dec 27 2019, 18:05:45) [Clang 11.0.0 (clang-1100.0.33.16)]
+```
+
+
+
+##### OS / ENVIRONMENT
+mac-os mojave
+
+
+##### STEPS TO REPRODUCE
+
+```
+- name: Create mapped drive with credentials that do not persist on the next logon
+  win_mapped_drive:
+    letter: Z
+    path: "{{ artifactory_url }}"
+    state: present
+    username: "{{ artifactory_user }}"
+    password: "{{ artifactory_token }}"
+```
+
+
+
+##### EXPECTED RESULTS
+mount the webdav share
+
+
+##### ACTUAL RESULTS
+<!--- Describe what actually happened. If possible run with extra verbosity (-vvvv) -->
+
+<!--- Paste verbatim command output between quotes -->
+```
+TASK [win_common : Create mapped drive with credentials that do not persist on the next logon] *************************************
+fatal: [server]: FAILED! => {"changed": false, "msg": "argument for path is of type System.String and we were unable to convert to path: The given path's format is not supported."}
+
+
+```

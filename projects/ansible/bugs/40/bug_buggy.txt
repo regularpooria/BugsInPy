@@ -1,0 +1,49 @@
+apt_repository module requires gpg to be installed target, but docs don't mention
+### Summary
+
+The `apt_repository` will fail with a somewhat confusing error if gnugp, and dirmngr manager are not installed.  Neither of these packages are Required/Essential/Important, and may not be already installed in minimal systems that you might want to run `apt_repository` on.
+
+The fix might be to just include `gnupg` in the requirements section of the docs.
+
+### Issue Type
+
+Documentation Report
+
+### Component Name
+
+apt_repository
+
+### Ansible Version
+
+```console
+$  ansible --version
+ansible [core 2.11.4]
+  config file = ...
+  configured module search path = ...
+  ansible python module location = ...
+  ansible collection location = ...
+  executable location = /usr/local/bin/ansible
+  python version = 3.9.2 (default, Feb 28 2021, 17:03:44) [GCC 10.2.1 20210110]
+  jinja version = 3.0.1
+  libyaml = True
+```
+
+
+### Configuration
+
+```console
+$ ansible-config dump --only-changed
+```
+
+
+### OS / Environment
+
+Mostly a docs issue so this is N/A. But apt_repository applies to Debian, Ubuntu, and forks.
+
+### Additional Information
+
+Tells people that need gnupg when using apt_repository.
+
+### Code of Conduct
+
+- [X] I agree to follow the Ansible Code of Conduct
