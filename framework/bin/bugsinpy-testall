@@ -29,6 +29,7 @@ usage="
 dir_of_script=$(dirname $0)
 bugsinpy_location=$(realpath $dir_of_script/../..)
 temp_projects="$bugsinpy_location/temp/projects"
+logs_folder="/home/user/BugsInPy/logs"
 index_name="bugsinpy-index.csv"
 index_file="$bugsinpy_location/projects/$index_name"
 
@@ -96,7 +97,7 @@ for project_name in $projects; do
           version="fixed"
         fi
 
-        bugsinpy-checkout -p $project -v $version_id -i $bug -w $temp_projects &>> $temp_projects/$project-checkout-logs.txt
+        bugsinpy-checkout -p $project -v $version_id -i $bug -w $temp_projects &>> $logs_folder/$project-checkout-logs.txt
         cd $work_dir
 
         # Cleanup requirements.txt from unwanted spaces

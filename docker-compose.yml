@@ -142,8 +142,9 @@ services:
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
+      - ./logs:/home/user/BugsInPy/logs
     command: |
-      bugsinpy-testall -p youtube-dl:
+      bugsinpy-testllm -p youtube-dl:
     depends_on:
       - setup
   sanic:

@@ -2,7 +2,8 @@ FROM docker.io/continuumio/miniconda3:23.3.1-0
 MAINTAINER faustinoaq <faustino.aguilar@up.ac.pa>
 
 RUN apt-get update
-RUN apt-get -y install git nano dos2unix build-essential
+RUN apt-get upgrade -y
+RUN apt-get -y install git nano dos2unix build-essential --fix-missing
 
 WORKDIR /home/user
 
