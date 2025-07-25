@@ -1,5 +1,47 @@
 #!/bin/bash
 git config --global http.postBuffer 524288000
+git config --global http.maxRequestBuffer 100M
+git config --global core.compression 0
+git config --global http.lowSpeedLimit 1000
+git config --global http.lowSpeedTime 300
+mkdir -p "$work_dir"
+
+clone_with_retry() {
+    local url=$1
+    local destination=$2
+    local max_attempts=3
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        echo "Attempt $attempt/$max_attempts: Cloning $url"
+        
+        if git clone --depth 1 "$url" "$destination"; then
+            echo "Clone successful on attempt $attempt"
+            return 0
+        else
+            echo "Clone failed on attempt $attempt"
+            if [ $attempt -lt $max_attempts ]; then
+                echo "Retrying in 5 seconds..."
+                sleep 5
+                rm -rf "$destination" 2>/dev/null
+            fi
+            ((attempt++))
+        fi
+    done
+    
+    echo "All clone attempts failed. Trying with increased buffer size..."
+    git config --global http.postBuffer 1048576000
+    git config --global http.lowSpeedLimit 0
+    git config --global http.lowSpeedTime 999999
+    
+    if git clone "$url" "$destination"; then
+        echo "Clone successful with increased buffer size"
+        return 0
+    else
+        echo "Clone failed completely"
+        return 1
+    fi
+}
 
 framework_location="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -93,11 +135,11 @@ do
   if [[ "$line" == "github_url="* ]]; then
      githubURL="$(cut -d'"' -f 2 <<< $line)"
      echo "$githubURL"
-     githubName="${githubUrl##*/}"
-     if [[ "$githubName" == "" ]]; then
-         temp="${githubUrl%?}"
+     githubName="${githubURL##*/}"
+      if [[ "$githubName" == "" ]]; then
+         temp="${githubURL%?}"
          githubName="${temp##*/}"
-     fi
+      fi
   elif [[ "$line" == 'status="OK"'* ]]; then
      checkfurther="YES"
      #clone project if status OK
@@ -105,11 +147,20 @@ do
   echo "$line"
 done < "$input"
 
+if [ -d "$work_dir/$project_name" ]; then
+    echo "Directory $work_dir/$project_name already exists. Removing..."
+    rm -rf "$work_dir/$project_name"
+fi
+
 ###Clone the project
 if [[ "$checkfurther" == "NO" ]]; then
   exit
 elif [[ "$checkfurther" == "YES" ]]; then
-   git clone "$githubURL" "$work_dir/$project_name"
+   if ! clone_with_retry "$githubURL" "$work_dir/$project_name"; then
+    echo "Failed to clone repository after multiple attempts"
+    echo "Please check your network connection and try again"
+    exit 1
+   fi
 fi
 
 cd "$project_location/bugs/$bug_id"

@@ -69,6 +69,7 @@ for project_name in $projects; do
   else
     start=1
     finish=$(ls $bugsinpy_location/projects/$project_name/bugs | wc -l)
+    finish=5
     project=$project_name
   fi
 
