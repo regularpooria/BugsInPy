@@ -69,10 +69,9 @@ for project_name in $projects; do
   else
     start=1
     finish=$(ls $bugsinpy_location/projects/$project_name/bugs | wc -l)
-    finish=5
     project=$project_name
   fi
-
+  finish=5
   work_dir="$temp_projects/$project"
   
   for bug in $(seq $start $finish); do
@@ -101,7 +100,7 @@ for project_name in $projects; do
     fi
 
     python3 /home/user/BugsInPy/framework/bin/replace_code.py $project $bug $work_dir &>> $logs_folder/replace_code_logs.txt
-    bugsinpy-compile &>> $work_dir/logs.txt
+    bugsinpy-compile &>> $bug_source_dir/compile_logs.txt
     bugsinpy-test &> "$bug_source_dir/bug_$version.txt"
 
     if grep -q "= ERRORS =" "$bug_source_dir/bug_$version.txt" || \
