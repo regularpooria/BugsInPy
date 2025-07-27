@@ -71,7 +71,7 @@ for project_name in $projects; do
     finish=$(ls $bugsinpy_location/projects/$project_name/bugs | wc -l)
     project=$project_name
   fi
-  finish=5
+  # finish=5
   work_dir="$temp_projects/$project"
   
   for bug in $(seq $start $finish); do
