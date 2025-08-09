@@ -4,6 +4,7 @@ services:
   setup:
     build: .
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     pull_policy: never
     volumes:
       - ./temp:/home/user/BugsInPy/temp
@@ -19,6 +20,8 @@ services:
   pysnooper:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -29,6 +32,7 @@ services:
   ansible:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -39,6 +43,7 @@ services:
   black:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -49,6 +54,7 @@ services:
   cookiecutter:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -59,6 +65,7 @@ services:
   fastapi:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -69,6 +76,7 @@ services:
   httpie:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -79,6 +87,7 @@ services:
   keras:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -89,6 +98,7 @@ services:
   luigi:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -99,6 +109,7 @@ services:
   matplotlib:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -109,6 +120,7 @@ services:
   pandas:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -119,6 +131,7 @@ services:
   spacy:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -129,6 +142,7 @@ services:
   thefuck:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -139,6 +153,7 @@ services:
   youtube-dl:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -150,6 +165,7 @@ services:
   sanic:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -160,6 +176,7 @@ services:
   scrapy:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -170,6 +187,7 @@ services:
   tornado:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
@@ -180,6 +198,7 @@ services:
   tqdm:
     pull_policy: never
     image: bugsinpy-setup
+user: "${UID}:${GID}"
     volumes:
       - ./projects:/home/user/BugsInPy/projects
       - ./temp:/home/user/BugsInPy/temp
